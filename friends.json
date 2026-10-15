@@ -5,7 +5,44 @@
     {
       "id": "big-hoof-energy",
       "name": "Big Hoof Energy",
-      "src": "/models/big-hoof-energy.glb"
+      "src": "/models/big-hoof-energy.glb",
+      "poster": "/models/previews/big-hoof-energy.png",
+      "summary": "A ram from the Key Ring Friends bench. Animal key chain, for sale."
+    },
+    {
+      "id": "bronco",
+      "name": "Bronco",
+      "src": "/models/bronco.glb",
+      "poster": "/models/previews/bronco.png",
+      "summary": "Buck It Bronco. Animal key chain, for sale."
+    },
+    {
+      "id": "hip-whip-hippo",
+      "name": "Hip Whip Hippo",
+      "src": "/models/hip-whip-hippo.glb",
+      "poster": "/models/previews/hip-whip-hippo.png",
+      "summary": "A hippo from this bench. Animal key chain, for sale."
+    },
+    {
+      "id": "rad-bug",
+      "name": "Rad Bug",
+      "src": "/models/rad-bug.glb",
+      "poster": "/models/previews/rad-bug.png",
+      "summary": "Hot rod bug. Animal key chain, for sale."
+    },
+    {
+      "id": "suber-moo",
+      "name": "Suber Moo",
+      "src": "/models/suber-moo.glb",
+      "poster": "/models/previews/suber-moo.png",
+      "summary": "A cow from this bench. Animal key chain, for sale."
+    },
+    {
+      "id": "colo-rad-goat",
+      "name": "Colo Rad Goat",
+      "src": "/models/colo-rad-goat.glb",
+      "poster": "/models/previews/colo-rad-goat.png",
+      "summary": "A goat from this bench. Animal key chain, for sale."
     }
   ]
 }

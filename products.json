@@ -6,7 +6,74 @@
     "shipping": {
       "amount": 8,
       "currency": "usd",
-      "label": "USPS Ground Advantage"
+      "label": "USPS Ground Advantage",
+      "countries": [
+        "US"
+      ],
+      "estimate_min_days": 2,
+      "estimate_max_days": 8
     }
-  }
+  },
+  "products": [
+    {
+      "id": "phone-stand",
+      "name": "Bench Phone Stand",
+      "price": 18,
+      "kind": "physical",
+      "stock": 2,
+      "summary": "Printed L-bracket stand with a front lip so the phone stays put. You get the part, not the file.",
+      "hidden": true,
+      "specs": {
+        "size": "80 x 72 x 58 mm",
+        "layer": "0.2 mm",
+        "filament": "~28 g PLA",
+        "time": "~2 h"
+      }
+    },
+    {
+      "id": "cable-clip",
+      "name": "Desk Cable Clip",
+      "price": 9,
+      "kind": "physical",
+      "stock": 6,
+      "summary": "Printed U-clip that snaps over a desk edge and keeps one cable from wandering.",
+      "hidden": true,
+      "specs": {
+        "size": "24 x 12 x 18 mm",
+        "layer": "0.2 mm",
+        "filament": "~4 g PLA",
+        "time": "~20 min"
+      }
+    },
+    {
+      "id": "hex-tray",
+      "name": "Hex Catch-All",
+      "price": 16,
+      "kind": "physical",
+      "stock": 3,
+      "summary": "Printed hex dish for screws, SD cards, and the bits that roll off the bench.",
+      "hidden": true,
+      "specs": {
+        "size": "90 mm across x 10 mm",
+        "layer": "0.2 mm",
+        "filament": "~22 g PLA",
+        "time": "~1.5 h"
+      }
+    },
+    {
+      "id": "desk-coaster",
+      "name": "Rimmed Coaster",
+      "price": 12,
+      "kind": "physical",
+      "stock": 3,
+      "summary": "Printed square coaster with a raised rim. Ships ready to use.",
+      "hidden": true,
+      "specs": {
+        "size": "90 x 90 x 7 mm",
+        "layer": "0.2 mm",
+        "filament": "~18 g PLA",
+        "time": "~1 h"
+      }
+    }
+  ]
 }
