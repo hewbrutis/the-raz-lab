@@ -10,7 +10,7 @@ One action: pick 1, 5, or 10 of the same animal, then pay now on Stripe.
 - Not mix and match. No quantity 11. Different animals stay separate lines, each priced as its own 1 / 5 / 10 pack.
 
 ## Split
-- Buyer UI: `shop/index.html` — pack buttons on each Key Ring Friend. Header **Bag** opens the cart. The bag popup has a required US shipping address form (street, city, state, ZIP). **Pay now** will not start without it, then creates a Stripe Checkout Session that also requires a US shipping address.
+- Buyer UI: `shop/index.html` — pack buttons on each Key Ring Friend. Header **Bag** opens the cart. The bag popup has a required US shipping address form (street, city, state, ZIP). **Pay now** will not start without it. Stripe Checkout also collects a US shipping address. Do not also send `payment_intent_data[shipping]` — Stripe rejects that pair.
 - Money: Stripe charges the card on that page. Balance hits the connected Stripe account immediately. Bank payout follows Stripe's normal schedule.
 - Custom work still uses **Want what we got?** Lithophanes and example rows do not get pack buttons.
 
