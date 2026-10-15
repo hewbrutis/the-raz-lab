@@ -1,0 +1,12 @@
+{
+  "store": {
+    "name": "MandMs3DPrints",
+    "tagline": "Matt and Misti's 3D Prints",
+    "kind": "physical",
+    "shipping": {
+      "amount": 8,
+      "currency": "usd",
+      "label": "USPS Ground Advantage"
+    }
+  }
+}

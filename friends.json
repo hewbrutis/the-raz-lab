@@ -1,0 +1,11 @@
+{
+  "title": "Key Ring Friends",
+  "lede": "Pick 1, 5, or 10 of the same animal. Not mix and match. Drag to spin one, then pick a pack.",
+  "items": [
+    {
+      "id": "big-hoof-energy",
+      "name": "Big Hoof Energy",
+      "src": "/models/big-hoof-energy.glb"
+    }
+  ]
+}
