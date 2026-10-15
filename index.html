@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Raz LAB — MandMs3DPrints</title>
+  <meta name="description" content="Matt and Misti print lithophanes and animal key chains you can buy, plus custom car parts, house stuff, and one-offs. Want what we got? Need something that is not listed? Tell us." />
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b0a09;
+      --bg-2: #12110f;
+      --panel: #171512;
+      --panel-2: #1d1a16;
+      --line: #2a261f;
+      --line-hot: #5a4630;
+      --ink: #e8dfd0;
+      --muted: #9a8f7c;
+      --ember: #d89a4a;
+      --ember-2: #f0c27a;
+      --moss: #6e8b5a;
+      --soot: #070706;
+      --danger: #c45a3a;
+      --ok: #7ea36a;
+      --display: "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+      --sans: "Segoe UI", "Bahnschrift", "Trebuchet MS", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--ink); overflow-x: hidden; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      min-height: 100vh;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(216,154,74,0.08), transparent 50%),
+        radial-gradient(900px 400px at 90% 0%, rgba(80,50,20,0.18), transparent 45%),
+        linear-gradient(180deg, #100e0c 0%, var(--bg) 28%, #090807 100%);
+    }
+    body::before {
+      content: "";
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      opacity: 0.09;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+    a { color: var(--ember-2); }
+    button { font-family: inherit; }
+    button:focus-visible, a:focus-visible {
+      outline: 2px solid var(--ember);
+      outline-offset: 2px;
+    }
+    .skip {
+      position: absolute;
+      left: 12px;
+      top: -40px;
+      background: var(--ember);
+      color: #1a1208;
+      padding: 8px 12px;
+      z-index: 40;
+    }
+    .skip:focus { top: 12px; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 22px 80px; position: relative; overflow-x: clip; }
+    header.top {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 28px 0 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; gap: 14px; align-items: flex-start; min-width: 0; }
+    .brand > div {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 0;
+    }
+    .mark {
+      width: 42px; height: 42px; flex: 0 0 42px;
+      border: 1px solid var(--ember);
+      background: linear-gradient(135deg, #2a2014 0%, #15120f 60%);
+      display: grid; place-items: center;
+      color: var(--ember); font-weight: 700; letter-spacing: 0.08em;
+      box-shadow: 0 0 18px rgba(216,154,74,0.18);
+    }
+    .lab-name {
+      font-family: var(--display);
+      font-size: clamp(26px, 4.4vw, 38px);
+      letter-spacing: 0.02em;
+      margin: 0;
+      font-weight: 700;
+      line-height: 1.05;
+    }
+    .lab-by {
+      display: block;
+      margin: 10px 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.28em;
+      text-transform: lowercase;
+      font-style: italic;
+      line-height: 1;
+    }
+    .lab-studio {
+      display: block;
+      margin: 0;
+      color: var(--ember-2);
+      font-size: clamp(13px, 2.2vw, 16px);
+      letter-spacing: 0.02em;
+      line-height: 1.35;
+    }
+    nav.jump {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    nav.jump a {
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    nav.jump a:hover { border-color: var(--ember); color: var(--ember-2); }
+    .about {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 32px;
+      padding: 36px 0 12px;
+      align-items: start;
+    }
+    h2.section {
+      margin: 0 0 12px;
+      font-family: var(--display);
+      font-size: clamp(28px, 4vw, 40px);
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+    }
+    .about p { color: var(--muted); line-height: 1.6; margin: 0 0 12px; max-width: 54ch; }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--ember);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .about p.lead {
+      color: var(--ink);
+      font-size: 18px;
+      max-width: 36ch;
+    }
+    .about p.action {
+      color: var(--ink);
+      margin: 16px 0 14px;
+    }
+    .lab-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      margin: 0 0 8px;
+    }
+    .lab-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      background: var(--ember);
+      color: #1a1208;
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      border: 0;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .lab-cta:hover { color: #1a1208; }
+    .group-blurb {
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0 0 14px;
+      max-width: min(56ch, 100%);
+      overflow-wrap: break-word;
+      font-size: 14px;
+    }
+    .ig-more {
+      margin: 8px 0 0;
+      font-size: 13px;
+    }
+    .lab-jump {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .custom {
+      margin-top: 8px;
+      padding: 28px 0 8px;
+      border-top: 1px solid var(--line);
+    }
+    .custom .lede-copy {
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0 0 18px;
+      max-width: 56ch;
+    }
+    .ask {
+      margin-top: 8px;
+      padding: 28px 0 8px;
+      border-top: 1px solid var(--line);
+    }
+    .ask ol {
+      margin: 12px 0 18px;
+      padding-left: 1.2em;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 56ch;
+    }
+    .ask ol li { margin: 0 0 8px; }
+    footer.shop .foot-mark { color: var(--ink); font-size: 13px; letter-spacing: 0.02em; }
+    footer.shop .foot-by { margin: 6px 0; }
+    footer.shop .foot-nav { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 12px 0; }
+    footer.shop .foot-nav a { color: var(--muted); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+    footer.shop .foot-nav a:hover { color: var(--ember-2); }
+    footer.shop .fine { margin: 8px 0 0; max-width: 56ch; line-height: 1.5; }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .pill {
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 6px 9px;
+    }
+    .pill.hot { border-color: var(--line-hot); color: var(--ember-2); }
+    .best {
+      margin: 8px 0 0;
+    }
+    .best h3 {
+      margin: 0 0 12px;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ember);
+    }
+    .shots {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .shot {
+      margin: 0;
+      background: var(--panel);
+      border: 1px dashed var(--line-hot);
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 14px;
+      aspect-ratio: 4 / 5;
+    }
+    .shot span {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      line-height: 1.4;
+    }
+    .shot strong {
+      display: block;
+      color: var(--ember-2);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .work {
+      margin-top: 40px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+    }
+    .work > .lede-copy {
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0 0 28px;
+      max-width: min(56ch, 100%);
+      overflow-wrap: break-word;
+    }
+    .group {
+      margin: 0 0 36px;
+      padding: 18px 0 8px;
+      border-top: 1px solid var(--line);
+      min-width: 0;
+    }
+    .group:first-of-type { border-top: 0; padding-top: 0; }
+    .group-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 14px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .group-head h3 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(22px, 3vw, 28px);
+    }
+    .group-meta {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 4px 0 0;
+    }
+    .carousel-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      position: relative;
+      z-index: 5;
+    }
+    .carousel-nav button {
+      background: var(--panel);
+      color: var(--ember-2);
+      border: 1px solid var(--ember);
+      width: auto;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 12px;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .carousel-nav button:hover { background: #3a2d1c; }
+    .carousel-nav button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .counter {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      min-width: 4.5em;
+      text-align: right;
+    }
+    .carousel {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+    }
+    .track {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 0 10px;
+      scrollbar-color: var(--line-hot) var(--soot);
+      width: 100%;
+      min-width: 0;
+    }
+    .track:focus-visible {
+      outline: 2px solid var(--ember);
+      outline-offset: 4px;
+    }
+    .slide {
+      flex: 0 0 min(280px, 78vw);
+      scroll-snap-align: start;
+      min-width: 0;
+    }
+    .clip {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .clip-frame {
+      position: relative;
+      aspect-ratio: 9 / 16;
+      background: var(--soot);
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .clip-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #000;
+    }
+    .clip-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--line);
+    }
+    .clip-meta span {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .clip-meta a {
+      font-size: 12px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .friend-frame {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background: var(--soot);
+      overflow: hidden;
+    }
+    .friend-frame model-viewer {
+      width: 100%;
+      height: 100%;
+      --poster-color: #070706;
+      background: var(--soot);
+    }
+    .friends-row { margin: 0 0 36px; }
+    .friends-row .clip-meta {
+      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+    .friends-row .clip-meta button {
+      font-size: 12px;
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      background: transparent;
+      border: 0;
+      color: var(--ember-2);
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .friend-copy {
+      padding: 0 12px 12px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: none;
+    }
+    .friends-row .clip-frame {
+      border-top: 1px solid var(--line);
+      max-height: 220px;
+      aspect-ratio: auto;
+    }
+    .friends-row .clip-frame iframe {
+      position: relative;
+      height: 220px;
+    }
+    .work-empty { color: var(--muted); font-size: 14px; }
+    footer.shop {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+    .mm-toggle {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 30;
+      min-height: 48px;
+      min-width: 48px;
+      padding: 12px 16px;
+      background: var(--ember);
+      color: #1a1208;
+      border: 0;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .mm-toggle[aria-expanded="true"] { background: var(--panel); color: var(--ember-2); border: 1px solid var(--ember); }
+    .mm-panel {
+      position: fixed;
+      right: 16px;
+      bottom: 76px;
+      z-index: 31;
+      width: min(380px, calc(100vw - 24px));
+      max-height: min(72vh, 560px);
+      background: var(--panel);
+      border: 1px solid var(--line-hot);
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+    }
+    .mm-panel.open { display: flex; }
+    .mm-head {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .mm-head h2 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 20px;
+      letter-spacing: 0.02em;
+    }
+    .mm-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .mm-form {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+    }
+    .mm-form input, .mm-form textarea {
+      width: 100%;
+      background: var(--soot);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      padding: 12px 10px;
+      min-height: 44px;
+      font-family: inherit;
+    }
+    .mm-form textarea { min-height: 72px; resize: vertical; }
+    .mm-form button {
+      min-height: 44px;
+      background: var(--ember);
+      color: #1a1208;
+      border: 0;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .mm-form button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .mm-status { min-height: 1.2em; color: var(--muted); font-size: 12px; }
+    .mm-status.err { color: var(--danger); }
+    .mm-status.ok { color: var(--ok); }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    nav.jump .bag-link {
+      color: var(--ember-2);
+      background: transparent;
+      text-decoration: none;
+      border: 1px solid var(--ember);
+      padding: 10px 12px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    nav.jump .bag-link #bag-count {
+      letter-spacing: 0;
+      min-width: 1.25em;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    nav.jump .bag-link[data-filled="true"] {
+      background: var(--ember);
+      color: #1a1208;
+    }
+    .friend-buy {
+      display: grid;
+      gap: 8px;
+      padding: 0 12px 12px;
+    }
+    .friend-price {
+      margin: 0;
+      color: var(--ember-2);
+      font-size: 14px;
+      letter-spacing: 0.04em;
+    }
+    .friend-price span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0;
+      margin-top: 2px;
+    }
+    .buy-packs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .buy-btn {
+      min-height: 44px;
+      background: var(--ember);
+      color: #1a1208;
+      border: 0;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 8px 6px;
+    }
+    .buy-btn span {
+      display: block;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+    .buy-ask {
+      min-height: 44px;
+      background: transparent;
+      color: var(--ember-2);
+      border: 1px solid var(--line);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .bag-panel {
+      position: fixed;
+      right: 16px;
+      top: 16px;
+      z-index: 32;
+      width: min(420px, calc(100vw - 24px));
+      max-height: min(84vh, 720px);
+      background: var(--panel);
+      border: 1px solid var(--line-hot);
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+    }
+    .bag-panel.open,
+    .bag-panel:target { display: flex; }
+    .bag-head {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .bag-head h2 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 20px;
+    }
+    .bag-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .bag-close {
+      min-height: 44px;
+      min-width: 44px;
+      background: transparent;
+      color: var(--ember-2);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    .bag-lines {
+      overflow: auto;
+      padding: 8px 12px;
+      flex: 1;
+    }
+    .bag-empty { color: var(--muted); font-size: 14px; padding: 12px 4px; }
+    .bag-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .bag-line h3 {
+      margin: 0;
+      font-size: 14px;
+      font-family: var(--display);
+    }
+    .bag-qty {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bag-line-meta {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .bag-qty button {
+      min-width: 44px;
+      min-height: 44px;
+      background: var(--panel-2);
+      color: var(--ember-2);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-family: inherit;
+    }
+    .bag-deal, .bag-total {
+      padding: 12px 16px 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin: 0;
+    }
+    .bag-total strong {
+      display: block;
+      color: var(--ember-2);
+      font-size: 18px;
+      margin-top: 4px;
+    }
+    .bag-form {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-top: 1px solid var(--line);
+    }
+    .bag-form input, .bag-form textarea {
+      width: 100%;
+      background: var(--soot);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      padding: 12px 10px;
+      min-height: 44px;
+      font-family: inherit;
+    }
+    .bag-form textarea { min-height: 64px; resize: vertical; }
+    .bag-form button[type="submit"] {
+      min-height: 44px;
+      background: var(--ember);
+      color: #1a1208;
+      border: 0;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .bag-form button:disabled { opacity: 0.45; cursor: not-allowed; }
+    @media (max-width: 820px) {
+      .about, .shots { grid-template-columns: 1fr; }
+      .shots { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      header.top { align-items: center; }
+    }
+    @media (max-width: 480px) {
+      .wrap { padding: 0 16px 64px; }
+      header.top { flex-wrap: wrap; padding: 18px 0 16px; align-items: flex-start; }
+      .brand { width: 100%; }
+      .lab-name { font-size: 28px; }
+      .lab-studio { font-size: 14px; max-width: none; }
+      nav.jump { width: 100%; }
+      nav.jump a, nav.jump .bag-link { flex: 1 1 auto; justify-content: center; }
+      .shots { grid-template-columns: 1fr; }
+      .shot { min-height: 140px; aspect-ratio: 16 / 9; }
+      .group-head { flex-wrap: wrap; align-items: center; }
+      .carousel-nav { width: 100%; justify-content: flex-end; }
+      .slide { flex-basis: 78vw; }
+      .mm-panel {
+        right: 12px;
+        left: 12px;
+        bottom: 72px;
+        width: auto;
+        max-height: calc(100vh - 96px);
+      }
+      .mm-toggle { right: 12px; bottom: 12px; }
+      .mm-form textarea { min-height: 56px; }
+      .bag-panel {
+        right: 12px;
+        left: 12px;
+        top: 12px;
+        width: auto;
+        max-height: calc(100vh - 24px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#lab">Skip to the lab</a>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">MM</div>
+        <div>
+          <h1 class="lab-name">The Raz LAB</h1>
+          <p class="lab-by">by</p>
+          <p class="lab-studio">MandMs3DPrints - (Matt and Misti's 3D Prints)</p>
+        </div>
+      </div>
+      <nav class="jump" aria-label="On this page">
+        <a href="#lab">The lab</a>
+        <a href="#from-printer">From the printer</a>
+        <a href="#want-one">Want what we got?</a>
+        <a href="#custom">We make what you need.</a>
+        <button type="button" class="bag-link" id="bag-toggle" aria-expanded="false" aria-controls="mm-bag">Bag <span id="bag-count">0</span></button>
+      </nav>
+    </header>
+
+    <section class="about" id="lab">
+      <div>
+        <p class="eyebrow">The lab</p>
+        <h2 class="section">You saw it. We created it.</h2>
+        <p class="lead">If you just watched a reel, it came from this maker's hands. We are a team of two, husband and wife, trying to get a start in this maker space. We model it, print it, pack it, and ship it — all by hand, with Maticulous Mattention.
+What truly sets us apart is that we can make nearly anything you need. If you have an idea, we will sit down, figure out the puzzle, and bring it to life. Custom creation is our specialty.</p>
+        <p class="action">Want what we got? Tell us what you need.</p>
+        <div class="lab-actions">
+          <button type="button" class="lab-cta" data-open-chat>Want what we got?</button>
+          <a class="lab-jump" href="#from-printer">Jump to the prints</a>
+        </div>
+      </div>
+      <aside class="best" aria-label="Print photos">
+        <div class="shots">
+          <figure class="shot">
+            <span>A print that left this bench.</span>
+          </figure>
+          <figure class="shot">
+            <span>Same print, in a hand or on a shelf.</span>
+          </figure>
+          <figure class="shot">
+            <span>A lithophane held up to light.</span>
+          </figure>
+        </div>
+      </aside>
+    </section>
+
+    <section class="work" id="from-printer">
+      <h2 class="section">From the printer</h2>
+      <p class="lede-copy">Every piece we create is custom made-to-order, ensuring it is designed specifically for you. While you can animal keychains directly through our shop, please note that nothing is pre-assembled or ready to ship as we print on demand.  The additional rows in our showcase are examples of what we can design and build. Whatever you need, we will sit down, figure out the solution, and make it to your exact specifications.</p>
+      <div id="friends-row" class="friends-row"></div>
+      <div id="work-groups">
+        <p class="work-empty">Loading prints from the bench folder…</p>
+      </div>
+    </section>
+
+    <section class="custom" id="custom">
+      <p class="eyebrow">Custom</p>
+      <h2 class="section">We make what you need.</h2>
+      <p class="lede-copy">The rows above are what we have already printed. They are not a menu you have to pick from. Need a part, a gift, a replacement, or a one-off we have never listed? Tell us. It does not have to be pre-made or already for sale. A photo, a sketch, or a sentence is enough to start. We will say if this bench can make it, then quote, then print.</p>
+      <button type="button" class="lab-cta" data-open-chat>Tell us what you need.</button>
+    </section>
+
+    <section class="ask" id="want-one">
+      <h2 class="section">Want what we got?</h2>
+      <p class="lede-copy">Animal key chains go in the bag as 1, 5, or 10 of the same animal. $4.99, $19.99, or $37.99. Not mix and match. Send the order and we write back with how to pay. Custom work still starts with Want what we got?</p>
+      <ol>
+        <li>Send the reel, or name the print.</li>
+        <li>Tell us size, color, and where it ships.</li>
+        <li>We quote. You pay only after you like the number.</li>
+        <li>We print it here and pack it.</li>
+      </ol>
+      <button type="button" class="lab-cta" data-open-chat>Want what we got?</button>
+    </section>
+
+    <footer class="shop">
+      <p class="foot-mark">The Raz LAB</p>
+      <p class="foot-by">by MandMs3DPrints - (Matt and Misti's 3D Prints)</p>
+      <p>Raz's Retrofit Restoration</p>
+      <p>Instagram: <a href="https://www.instagram.com/mandms3dprints/" target="_blank" rel="noopener">@mandms3dprints</a></p>
+      <nav class="foot-nav" aria-label="Footer">
+        <a href="#lab">The lab</a>
+        <a href="#from-printer">From the printer</a>
+        <a href="#want-one">Want what we got?</a>
+        <a href="#custom">We make what you need.</a>
+        <a href="#shipping">Shipping</a>
+      </nav>
+      <p class="fine" id="shipping">Printed to order on our bench. Photos and measurements keep the fit honest.</p>
+    </footer>
+  </div>
+
+  <button type="button" class="mm-toggle" id="mm-chat-toggle" aria-expanded="false" aria-controls="mm-chat">Want what we got?</button>
+  <section class="mm-panel" id="mm-chat" role="dialog" aria-labelledby="mm-chat-title" aria-modal="false">
+    <div class="mm-head">
+      <h2 id="mm-chat-title">Want what we got?</h2>
+      <p>Enter your email and tell us what you need below. Share as much or as little info as you want. (This window will close upon sending.)</p>
+    </div>
+    <form class="mm-form" id="mm-chat-form">
+      <label class="sr-only" for="mm-chat-name">Name (optional)</label>
+      <input id="mm-chat-name" type="text" maxlength="40" autocomplete="nickname" placeholder="Name (optional)" />
+      <label class="sr-only" for="mm-chat-email">Email so we can reply</label>
+      <input id="mm-chat-email" type="email" maxlength="80" autocomplete="email" required placeholder="Email so we can reply" />
+      <label class="sr-only" for="mm-chat-text">Message</label>
+      <textarea id="mm-chat-text" maxlength="800" required placeholder="Which print, or what do you need?"></textarea>
+      <button type="submit" id="mm-chat-send">Send email</button>
+      <p class="mm-status" id="mm-chat-status"></p>
+    </form>
+  </section>
+
+  <section class="bag-panel" id="mm-bag" role="dialog" aria-labelledby="mm-bag-title" aria-modal="false">
+    <div class="bag-head">
+      <div>
+        <h2 id="mm-bag-title">Your bag</h2>
+        <p>Pick 1, 5, or 10 of the same animal. Not mix and match.</p>
+      </div>
+      <button type="button" class="bag-close" id="bag-close">Close</button>
+    </div>
+    <div class="bag-lines" id="bag-lines"></div>
+    <p class="bag-deal" id="bag-deal"></p>
+    <p class="bag-total" id="bag-total"></p>
+    <form class="bag-form" id="bag-form">
+      <label class="sr-only" for="bag-name">Name (optional)</label>
+      <input id="bag-name" type="text" maxlength="40" autocomplete="name" placeholder="Name (optional)" />
+      <label class="sr-only" for="bag-email">Email so we can write back</label>
+      <input id="bag-email" type="email" maxlength="80" autocomplete="email" required placeholder="Email so we can write back" />
+      <label class="sr-only" for="bag-ship">Where it ships</label>
+      <textarea id="bag-ship" maxlength="400" required placeholder="City, state, and anything we should know"></textarea>
+      <button type="submit" id="bag-send">Pay now</button>
+      <p class="mm-status" id="bag-status"></p>
+    </form>
+  </section>
+
+  <script>
+    (function () {
+      var root = document.getElementById("work-groups");
+      if (!root) return;
+
+      function clipHtml(cat, v, index, total) {
+        var embed = v.embed || ("https://www.instagram.com/" + v.kind + "/" + v.id + "/embed/");
+        var href = v.permalink || embed.replace("/embed/", "/");
+        var kind = v.kind === "p" ? "Post" : "Reel";
+        return (
+          '<article class="slide" aria-label="' + cat.name + " " + (index + 1) + " of " + total + '">' +
+            '<div class="clip">' +
+              '<div class="clip-frame">' +
+                '<iframe src="' + embed + '" loading="lazy" scrolling="no" allowtransparency="true" allow="encrypted-media" title="' + cat.name + " print " + (index + 1) + '"></iframe>' +
+              "</div>" +
+              '<div class="clip-meta"><span>' + kind + "</span><a href=\"" + href + "\" target=\"_blank\" rel=\"noopener\">Open on Instagram</a></div>" +
+            "</div>" +
+          "</article>"
+        );
+      }
+
+      function slideWidth(track) {
+        var slide = track.querySelector(".slide");
+        if (!slide) return track.clientWidth;
+        var styles = window.getComputedStyle(track);
+        var gap = parseFloat(styles.columnGap || styles.gap || "14") || 14;
+        return slide.getBoundingClientRect().width + gap;
+      }
+
+      function pageIndex(track) {
+        var w = slideWidth(track);
+        if (!w) return 0;
+        return Math.round(track.scrollLeft / w);
+      }
+
+      function bindCarousel(group) {
+        var track = group.querySelector(".track");
+        var prev = group.querySelector("[data-prev]");
+        var next = group.querySelector("[data-next]");
+        var counter = group.querySelector("[data-counter]");
+        var slides = track ? track.querySelectorAll(".slide") : [];
+        if (!track || !slides.length) return;
+
+        function sync() {
+          var i = pageIndex(track);
+          var max = Math.max(0, slides.length - 1);
+          if (i < 0) i = 0;
+          if (i > max) i = max;
+          if (counter) counter.textContent = (i + 1) + " / " + slides.length;
+          if (prev) prev.disabled = i <= 0;
+          if (next) next.disabled = i >= max;
+        }
+
+        function go(dir) {
+          track.scrollBy({ left: dir * slideWidth(track), behavior: "smooth" });
+        }
+
+        if (prev) prev.addEventListener("click", function () { go(-1); });
+        if (next) next.addEventListener("click", function () { go(1); });
+        track.addEventListener("scroll", sync, { passive: true });
+        track.addEventListener("keydown", function (e) {
+          if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+          if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+        });
+        sync();
+      }
+
+      var BLURBS = {
+        "Car Parts, Mechanical Things": "Examples of parts we can make for you. Lost a clip, a knob, a bracket? Send a photo and a measurement. We will tell you if this bench can make it before you pay.",
+        "For the House!": "Examples of house stuff we can print. Need a hook, a stand, an organizer? Tell us what you need.",
+        "One of a kind Lithophanes": "Message us with what you want. Unfortunatly these are not for sale, rather exmaples of what we can do!  Use a white light or upgrade to colored lights to give it that extra trippy vibe! These are PERFECT gift ideas, I'm telling you. 100% customizable for ANYONE.",
+        "Key Chain Animals": "These animal key chains are for sale, or if you want, we can one specifically for you! A pet, farm animal, favorite bird or dinosaurs, heck even imaginary creatures. Whatever you like is yours.",
+        "Random Funzies": "More examples of what we can make. If you like something or get a cool idea for something, just tell us what you want.",
+        "Special Requests": "Someone asked. We made it. A one-off, a gift, a creature that is not on the other rows. Tell us what you need."
+      };
+
+      function blurbFor(name) {
+        if (BLURBS[name]) return BLURBS[name];
+        var key;
+        for (key in BLURBS) {
+          if (name.indexOf(key) === 0 || key.indexOf(name) === 0) return BLURBS[key];
+        }
+        return "";
+      }
+
+      function render(cats) {
+        if (!cats.length) {
+          root.innerHTML = '<p class="work-empty">Nothing in this row yet. Check the others, or ask us anyway.</p>';
+          return;
+        }
+        root.innerHTML = cats.map(function (cat) {
+          var videos = cat.videos || [];
+          var blurb = blurbFor(cat.name);
+          var slides = videos.length
+            ? videos.map(function (v, i) { return clipHtml(cat, v, i, videos.length); }).join("")
+            : '<p class="work-empty">Nothing in this row yet. Check the others, or ask us anyway.</p>';
+          var nav = videos.length
+            ? '<div class="carousel-nav">' +
+                '<span class="counter" data-counter>1 / ' + videos.length + "</span>" +
+                '<button type="button" data-prev aria-label="Previous in ' + cat.name + '">Prev</button>' +
+                '<button type="button" data-next aria-label="Next in ' + cat.name + '">Next</button>' +
+              "</div>"
+            : "";
+          var more = videos.length
+            ? '<p class="ig-more"><a href="https://www.instagram.com/mandms3dprints/" target="_blank" rel="noopener">View more on Instagram</a></p>'
+            : "";
+          return (
+            '<section class="group" data-group="' + cat.slug + '" aria-labelledby="group-' + cat.slug + '">' +
+              '<div class="group-head">' +
+                '<div>' +
+                  '<h3 id="group-' + cat.slug + '">' + cat.name + "</h3>" +
+                  '<p class="group-meta">' + cat.count + (cat.count === 1 ? " clip" : " clips") + "</p>" +
+                "</div>" +
+                nav +
+              "</div>" +
+              (blurb ? '<p class="group-blurb">' + blurb + "</p>" : "") +
+              '<div class="carousel" role="region" aria-roledescription="carousel" aria-label="' + cat.name + ' prints">' +
+                '<div class="track" tabindex="0">' + slides + "</div>" +
+              "</div>" +
+              more +
+            "</section>"
+          );
+        }).join("");
+        var groups = root.querySelectorAll(".group");
+        for (var i = 0; i < groups.length; i++) bindCarousel(groups[i]);
+      }
+
+      fetch("/api/videos").then(function (r) { return r.json(); }).then(function (data) {
+        render(data.categories || []);
+      }).catch(function () {
+        render([]);
+      });
+    })();
+
+    (function () {
+      var root = document.getElementById("friends-row");
+      if (!root) return;
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function friendHtml(item, index, total) {
+        var name = escapeHtml(item.name || "Key Ring Friend");
+        var src = escapeHtml(item.src || "");
+        var poster = escapeHtml(item.poster || "");
+        var summary = escapeHtml(item.summary || "Animal key chain, for sale.");
+        var video = item.video || null;
+        var videoBlock = "";
+        var watchLink = "";
+        if (video && video.embed) {
+          var embed = escapeHtml(video.embed);
+          var href = escapeHtml(video.permalink || video.embed);
+          var openLabel = video.source === "tiktok" ? "Open on TikTok" : "Open on Instagram";
+          videoBlock =
+            '<div class="clip-frame">' +
+              '<iframe src="' + embed + '" loading="lazy" scrolling="no" allowtransparency="true" allow="encrypted-media; fullscreen" title="' + name + ' reel"></iframe>' +
+            "</div>";
+          watchLink = '<a href="' + href + '" target="_blank" rel="noopener">' + openLabel + "</a>";
+        }
+        return (
+          '<article class="slide" aria-label="' + name + " " + (index + 1) + " of " + total + '">' +
+            '<div class="clip">' +
+              '<div class="friend-frame">' +
+                '<model-viewer src="' + src + '" poster="' + poster + '" alt="' + name + '" camera-controls touch-action="pan-y" shadow-intensity="0.7" exposure="1" auto-rotate auto-rotate-delay="1600" loading="' + (index === 0 ? "eager" : "lazy") + '" reveal="auto"></model-viewer>' +
+              "</div>" +
+              '<div class="clip-meta"><span>' + name + "</span>" + watchLink + "</div>" +
+              '<p class="friend-copy">' + summary + "</p>" +
+              '<div class="friend-buy">' +
+                '<p class="friend-price">Same animal only<span>1 for $4.99 · 5 for $19.99 · 10 for $37.99</span></p>' +
+                '<div class="buy-packs">' +
+                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="1">1<span>$4.99</span></button>' +
+                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="5">5<span>$19.99</span></button>' +
+                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="10">10<span>$37.99</span></button>' +
+                "</div>" +
+                '<button type="button" class="buy-ask" data-open-chat data-friend="' + name + '">Ask about this one</button>' +
+              "</div>" +
+              videoBlock +
+            "</div>" +
+          "</article>"
+        );
+      }
+
+      function slideWidth(track) {
+        var slide = track.querySelector(".slide");
+        if (!slide) return track.clientWidth;
+        var styles = window.getComputedStyle(track);
+        var gap = parseFloat(styles.columnGap || styles.gap || "14") || 14;
+        return slide.getBoundingClientRect().width + gap;
+      }
+
+      function pageIndex(track) {
+        var w = slideWidth(track);
+        if (!w) return 0;
+        return Math.round(track.scrollLeft / w);
+      }
+
+      function bindCarousel(group) {
+        var track = group.querySelector(".track");
+        var prev = group.querySelector("[data-prev]");
+        var next = group.querySelector("[data-next]");
+        var counter = group.querySelector("[data-counter]");
+        var slides = track ? track.querySelectorAll(".slide") : [];
+        if (!track || !slides.length) return;
+
+        function sync() {
+          var i = pageIndex(track);
+          var max = Math.max(0, slides.length - 1);
+          if (i < 0) i = 0;
+          if (i > max) i = max;
+          if (counter) counter.textContent = (i + 1) + " / " + slides.length;
+          if (prev) prev.disabled = i <= 0;
+          if (next) next.disabled = i >= max;
+        }
+
+        function go(dir) {
+          track.scrollBy({ left: dir * slideWidth(track), behavior: "smooth" });
+        }
+
+        if (prev) prev.addEventListener("click", function () { go(-1); });
+        if (next) next.addEventListener("click", function () { go(1); });
+        track.addEventListener("scroll", sync, { passive: true });
+        track.addEventListener("keydown", function (e) {
+          if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+          if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+        });
+        sync();
+      }
+
+      fetch("/api/friends").then(function (r) { return r.json(); }).then(function (data) {
+        var items = data.items || [];
+        if (!items.length) {
+          root.innerHTML = "";
+          return;
+        }
+        var slides = items.map(function (item, i) { return friendHtml(item, i, items.length); }).join("");
+        root.innerHTML =
+          '<section class="group" data-group="key-ring-friends" aria-labelledby="group-key-ring-friends">' +
+            '<div class="group-head">' +
+              "<div>" +
+                '<h3 id="group-key-ring-friends">' + escapeHtml(data.title || "Key Ring Friends") + "</h3>" +
+                '<p class="group-meta">' + items.length + " for sale</p>" +
+              "</div>" +
+              '<div class="carousel-nav">' +
+                '<span class="counter" data-counter>1 / ' + items.length + "</span>" +
+                '<button type="button" data-prev aria-label="Previous Key Ring Friend">Prev</button>' +
+                '<button type="button" data-next aria-label="Next Key Ring Friend">Next</button>' +
+              "</div>" +
+            "</div>" +
+            '<p class="group-blurb">' + escapeHtml(data.lede || "These animal key chains are for sale. Drag to spin one, then tell us which you want.") + "</p>" +
+            '<div class="carousel" role="region" aria-roledescription="carousel" aria-label="Key Ring Friends">' +
+              '<div class="track" tabindex="0">' + slides + "</div>" +
+            "</div>" +
+          "</section>";
+        bindCarousel(root.querySelector(".group"));
+      }).catch(function () {
+        root.innerHTML = "";
+      });
+    })();
+
+    (function () {
+      var PRICE_SINGLE = 499;
+      var PRICE_FIVE = 1999;
+      var PRICE_TEN = 3799;
+      var PACKS = { 1: PRICE_SINGLE, 5: PRICE_FIVE, 10: PRICE_TEN };
+      var LABELS = { 1: "1 for $4.99", 5: "5 for $19.99", 10: "10 for $37.99" };
+      var KEY = "mandms-bag";
+      var toggle = document.getElementById("bag-toggle");
+      var countEl = document.getElementById("bag-count");
+      var panel = document.getElementById("mm-bag");
+      var closeBtn = document.getElementById("bag-close");
+      var linesEl = document.getElementById("bag-lines");
+      var dealEl = document.getElementById("bag-deal");
+      var totalEl = document.getElementById("bag-total");
+      var form = document.getElementById("bag-form");
+      var nameEl = document.getElementById("bag-name");
+      var emailEl = document.getElementById("bag-email");
+      var shipEl = document.getElementById("bag-ship");
+      var sendEl = document.getElementById("bag-send");
+      var statusEl = document.getElementById("bag-status");
+      if (!toggle || !panel || !form) return;
+
+      function money(cents) {
+        return "$" + (cents / 100).toFixed(2);
+      }
+
+      function packCents(qty) {
+        return PACKS[qty] || null;
+      }
+
+      function loadBag() {
+        try {
+          var raw = JSON.parse(localStorage.getItem(KEY) || "[]");
+          if (!Array.isArray(raw)) return [];
+          return raw.filter(function (row) {
+            var qty = parseInt(row && row.qty, 10);
+            return row && row.id && row.name && packCents(qty);
+          }).map(function (row) {
+            return { id: String(row.id), name: String(row.name), qty: parseInt(row.qty, 10) };
+          });
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveBag(items) {
+        try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {}
+      }
+
+      function countBag(items) {
+        return items.reduce(function (n, row) { return n + row.qty; }, 0);
+      }
+
+      function totalBag(items) {
+        return items.reduce(function (n, row) { return n + packCents(row.qty); }, 0);
+      }
+
+      function setStatus(text, kind) {
+        statusEl.textContent = text || "";
+        statusEl.className = "mm-status" + (kind ? " " + kind : "");
+      }
+
+      function dealText(items) {
+        if (!items.length) return "";
+        return items.map(function (row) {
+          return row.name + ": " + LABELS[row.qty];
+        }).join(" · ") + ". Not mix and match.";
+      }
+
+      function openBag() {
+        panel.classList.add("open");
+        toggle.setAttribute("aria-expanded", "true");
+      }
+
+      function closeBag() {
+        panel.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        setStatus("");
+      }
+
+      function renderBag() {
+        var items = loadBag();
+        var count = countBag(items);
+        var total = totalBag(items);
+        countEl.textContent = String(count);
+        toggle.setAttribute("data-filled", count ? "true" : "false");
+        if (!items.length) {
+          linesEl.innerHTML = '<p class="bag-empty">Bag is empty. Pick 1, 5, or 10 of a Key Ring Friend.</p>';
+          dealEl.textContent = "";
+          totalEl.innerHTML = "";
+          sendEl.disabled = true;
+          return;
+        }
+        linesEl.innerHTML = items.map(function (row) {
+          return (
+            '<div class="bag-line" data-id="' + row.id.replace(/"/g, "") + '">' +
+              "<div><h3>" + row.name.replace(/</g, "") + "</h3>" +
+              '<p class="bag-line-meta">' + LABELS[row.qty] + "</p></div>" +
+              '<div class="bag-qty">' +
+                '<button type="button" data-bag-remove="' + row.id.replace(/"/g, "") + '" aria-label="Remove ' + row.name.replace(/"/g, "") + '">Remove</button>' +
+              "</div>" +
+            "</div>"
+          );
+        }).join("");
+        dealEl.textContent = dealText(items);
+        totalEl.innerHTML = "Due <strong>" + money(total) + "</strong>";
+        sendEl.disabled = false;
+      }
+
+      function setItem(id, name, qty) {
+        if (!id || !name || !packCents(qty)) return;
+        var items = loadBag().filter(function (row) { return row.id !== id; });
+        items.push({ id: id, name: name, qty: qty });
+        saveBag(items);
+        renderBag();
+      }
+
+      function removeItem(id) {
+        saveBag(loadBag().filter(function (row) { return row.id !== id; }));
+        renderBag();
+      }
+
+      toggle.addEventListener("click", function () {
+        if (panel.classList.contains("open") || location.hash === "#mm-bag") closeBag();
+        else { renderBag(); openBag(); }
+      });
+      if (closeBtn) closeBtn.addEventListener("click", closeBag);
+      function openFromHash() {
+        if (location.hash === "#mm-bag" || location.hash === "#bag") {
+          renderBag();
+          openBag();
+        }
+      }
+      openFromHash();
+      window.addEventListener("hashchange", openFromHash);
+
+      document.addEventListener("click", function (e) {
+        var node = e.target;
+        if (node && node.nodeType !== 1) node = node.parentElement;
+        var addBtn = node && node.closest ? node.closest("[data-add-friend]") : null;
+        if (addBtn) {
+          var pack = parseInt(addBtn.getAttribute("data-pack"), 10);
+          setItem(addBtn.getAttribute("data-add-friend"), addBtn.getAttribute("data-friend-name"), pack);
+          openBag();
+          setStatus("Added " + (LABELS[pack] || "") + ".", "ok");
+          return;
+        }
+        var removeBtn = node && node.closest ? node.closest("[data-bag-remove]") : null;
+        if (removeBtn) {
+          removeItem(removeBtn.getAttribute("data-bag-remove"));
+        }
+      });
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var items = loadBag();
+        if (!items.length) return;
+        var email = (emailEl.value || "").trim();
+        var ship = (shipEl.value || "").trim();
+        if (!email || !ship) return;
+        sendEl.disabled = true;
+        setStatus("Opening Stripe…");
+        fetch("/api/bag", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: nameEl.value,
+            email: email,
+            ship_to: ship,
+            items: items
+          })
+        }).then(function (r) {
+          return r.json().then(function (data) { return { ok: r.ok, data: data }; });
+        }).then(function (res) {
+          if (!res.ok || !(res.data && res.data.checkout_url)) {
+            sendEl.disabled = false;
+            setStatus((res.data && res.data.error) || "Could not start payment.", "err");
+            renderBag();
+            return;
+          }
+          try { localStorage.setItem("mandms-chat-email", email); } catch (err) {}
+          setStatus("Taking you to Stripe to pay.", "ok");
+          window.location = res.data.checkout_url;
+        }).catch(function () {
+          sendEl.disabled = false;
+          setStatus("Could not start payment.", "err");
+          renderBag();
+        });
+      });
+
+      if (/[?&]paid=1(?:&|$)/.test(location.search || "")) {
+        saveBag([]);
+        renderBag();
+        openBag();
+        setStatus("Paid. Stripe has the money. We print and ship next.", "ok");
+      } else {
+        renderBag();
+      }
+    })();
+
+    (function () {
+      var toggle = document.getElementById("mm-chat-toggle");
+      var panel = document.getElementById("mm-chat");
+      var form = document.getElementById("mm-chat-form");
+      var nameEl = document.getElementById("mm-chat-name");
+      var emailEl = document.getElementById("mm-chat-email");
+      var textEl = document.getElementById("mm-chat-text");
+      var sendEl = document.getElementById("mm-chat-send");
+      var statusEl = document.getElementById("mm-chat-status");
+      if (!toggle || !panel || !form || !emailEl) return;
+
+      var NAME_KEY = "mandms-chat-name";
+      var EMAIL_KEY = "mandms-chat-email";
+      try { nameEl.value = localStorage.getItem(NAME_KEY) || ""; } catch (e) {}
+      try { emailEl.value = localStorage.getItem(EMAIL_KEY) || ""; } catch (e) {}
+      try { localStorage.removeItem("mandms-chat-token"); } catch (e) {}
+
+      function setStatus(text, kind) {
+        statusEl.textContent = text || "";
+        statusEl.className = "mm-status" + (kind ? " " + kind : "");
+      }
+
+      function openForm() {
+        panel.classList.add("open");
+        toggle.setAttribute("aria-expanded", "true");
+        toggle.textContent = "Close";
+        setStatus("");
+        (textEl.value ? emailEl : textEl).focus();
+      }
+
+      function closeForm() {
+        panel.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.textContent = "Want what we got?";
+        setStatus("");
+      }
+
+      toggle.addEventListener("click", function () {
+        if (panel.classList.contains("open")) closeForm();
+        else openForm();
+      });
+
+      document.addEventListener("click", function (e) {
+        var node = e.target;
+        if (node && node.nodeType !== 1) node = node.parentElement;
+        var btn = node && node.closest ? node.closest("[data-open-chat]") : null;
+        if (!btn) return;
+        var friend = btn.getAttribute("data-friend");
+        if (friend && textEl && !textEl.value) textEl.value = "I want " + friend + ".";
+        openForm();
+      });
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var text = (textEl.value || "").trim();
+        var email = (emailEl.value || "").trim();
+        if (!text || !email) return;
+        sendEl.disabled = true;
+        setStatus("Sending…");
+        fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: nameEl.value,
+            email: email,
+            text: text
+          })
+        }).then(function (r) {
+          return r.json().then(function (data) { return { ok: r.ok, data: data }; });
+        }).then(function (res) {
+          sendEl.disabled = false;
+          if (!res.ok) {
+            setStatus((res.data && res.data.error) || "Could not send. Instagram is @mandms3dprints if this box dies.", "err");
+            return;
+          }
+          try { if (nameEl.value) localStorage.setItem(NAME_KEY, nameEl.value); } catch (err) {}
+          try { localStorage.setItem(EMAIL_KEY, email); } catch (err) {}
+          textEl.value = "";
+          setStatus("Sent. We will write back in that inbox.", "ok");
+          setTimeout(closeForm, 900);
+        }).catch(function () {
+          sendEl.disabled = false;
+          setStatus("Could not send. Instagram is @mandms3dprints if this box dies.", "err");
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
