@@ -28,7 +28,7 @@ Prices the shop will send to Stripe:
 
 4. Browser `POST /api/bag` with name, email, structured shipping, and the pack lines.
 5. Server refuses empty bags, qty that is not 1 / 5 / 10, two lines of the same animal, and a missing or incomplete shipping address.
-6. Server creates a Stripe Checkout Session (`mode=payment`) with those line items, their email, ship-to in metadata, and `shipping_address_collection` required for the US. Stripe Checkout also asks for the shipping address.
+6. Server creates a Stripe Checkout Session (`mode=payment`) with those line items, their email, ship-to in metadata, and `shipping_address_collection` required for the US. Stripe Checkout asks for the shipping address. Do not set `payment_intent_data[shipping]` at the same time — Stripe returns: “You can not collect shipping address and specify shipping payment intent data simultaneously.”
 7. Server returns `checkout_url`.
 8. Browser sends them to Stripe-hosted Checkout (`checkout.stripe.com`).
 
