@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MandMs3DPrints - the bench</title>
+  <style>
+    :root {
+      --bg: #0b0a09;
+      --bg-2: #12110f;
+      --panel: #171512;
+      --panel-2: #1d1a16;
+      --line: #2a261f;
+      --line-hot: #5a4630;
+      --ink: #e8dfd0;
+      --muted: #9a8f7c;
+      --ember: #d89a4a;
+      --ember-2: #f0c27a;
+      --soot: #070706;
+      --danger: #c45a3a;
+      --ok: #7ea36a;
+      --display: "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+      --sans: "Segoe UI", "Bahnschrift", "Trebuchet MS", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--ink); }
+    body {
+      font-family: var(--sans);
+      min-height: 100vh;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(216,154,74,0.08), transparent 50%),
+        radial-gradient(900px 400px at 90% 0%, rgba(80,50,20,0.18), transparent 45%),
+        linear-gradient(180deg, #100e0c 0%, var(--bg) 28%, #090807 100%);
+    }
+    a { color: var(--ember-2); }
+    button, input, textarea { font-family: inherit; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible {
+      outline: 2px solid var(--ember);
+      outline-offset: 2px;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 22px 80px; position: relative; }
+    header.top {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 28px 0 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; gap: 14px; align-items: center; min-width: 0; }
+    .mark {
+      width: 42px; height: 42px; flex: 0 0 42px;
+      border: 1px solid var(--ember);
+      background: linear-gradient(135deg, #2a2014 0%, #15120f 60%);
+      display: grid; place-items: center;
+      color: var(--ember); font-weight: 700; letter-spacing: 0.08em;
+    }
+    .name {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin: 0;
+      font-weight: 700;
+    }
+    .tag { margin: 2px 0 0; color: var(--muted); font-size: 13px; letter-spacing: 0.04em; }
+    .nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .cart-btn, button.save, button.ghost, button.danger {
+      background: var(--panel);
+      color: var(--ink);
+      border: 1px solid var(--line-hot);
+      padding: 12px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .cart-btn:hover, button.ghost:hover { border-color: var(--ember); color: var(--ember-2); }
+    button.save {
+      background: var(--ember);
+      color: #1a1208;
+      border: 0;
+      font-weight: 700;
+    }
+    button.save:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.danger { border-color: var(--danger); color: var(--danger); }
+    h2.section {
+      margin: 28px 0 10px;
+      font-family: var(--display);
+      font-size: clamp(26px, 4vw, 36px);
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+    }
+    .lede { color: var(--muted); line-height: 1.55; max-width: 58ch; margin: 0 0 18px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 16px;
+      margin: 0 0 14px;
+    }
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ember);
+    }
+    label { display: block; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 8px 0 4px; }
+    input, textarea {
+      width: 100%;
+      background: var(--soot);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      padding: 12px 10px;
+      min-height: 44px;
+    }
+    textarea { min-height: 84px; resize: vertical; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+    .status { color: var(--muted); font-size: 13px; min-height: 1.2em; }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--danger); }
+    .lock {
+      display: none;
+      margin: 28px 0;
+      border: 1px solid var(--danger);
+      background: var(--panel);
+      padding: 18px;
+    }
+    .lock.show { display: block; }
+    .pill {
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 6px 9px;
+    }
+    .pill.hot { border-color: var(--line-hot); color: var(--ember-2); }
+    .hidden-card { opacity: 0.62; }
+    .chat-list { display: grid; gap: 12px; }
+    .chat-card .preview { color: var(--muted); font-size: 14px; line-height: 1.45; margin: 0 0 10px; }
+    .chat-log {
+      max-height: 220px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0 0 12px;
+      padding: 8px;
+      background: var(--soot);
+      border: 1px solid var(--line);
+    }
+    .chat-line { font-size: 14px; line-height: 1.4; }
+    .chat-line .who { display: block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+    .chat-line.visitor { color: var(--ink); }
+    .chat-line.bench, .chat-line.receipt { color: var(--ember-2); }
+    footer.shop {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    @media (max-width: 820px) {
+      .grid-4 { grid-template-columns: 1fr 1fr; }
+      header.top { align-items: flex-start; }
+    }
+    @media (max-width: 480px) {
+      .wrap { padding: 0 16px 64px; }
+      header.top, .nav { flex-direction: column; align-items: stretch; }
+      .grid-2, .grid-4 { grid-template-columns: 1fr; }
+      .name { font-size: 18px; letter-spacing: 0.12em; }
+      button.save, .cart-btn, button.ghost, button.danger { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">MM</div>
+        <div>
+          <h1 class="name">The Bench</h1>
+          <p class="tag">Change stock, prices, and parts. This page stays on this machine.</p>
+        </div>
+      </div>
+      <div class="nav">
+        <a class="cart-btn" href="/" style="text-decoration:none;display:grid;place-items:center;">Shop</a>
+        <button class="save" id="save-all" type="button">Save catalog</button>
+      </div>
+    </header>
+
+    <h2 class="section">Shop chats</h2>
+    <p class="lede">Customers talk on the public page. You answer here. Discord only gets a ping - they never see that chat, crew mail, or COMMS.</p>
+    <p class="status" id="chat-banner">Loading shop chats.</p>
+    <div class="chat-list" id="chat-list"></div>
+
+    <h2 class="section">Update what the shop sells.</h2>
+    <p class="lede">One action: save. Hidden parts drop off the public page but stay here so you can bring them back. Shipping and tagline sit with the catalog so the shop and this bench never drift.</p>
+    <p class="status" id="banner">Loading the catalog.</p>
+
+    <div class="lock" id="lock">
+      <h3 style="margin:0 0 8px;color:var(--ember);letter-spacing:0.16em;text-transform:uppercase;font-size:12px;">Local only</h3>
+      <p class="lede" style="margin:0;">The bench refused this machine. Open it at 127.0.0.1 on the shop port, not a public URL.</p>
+    </div>
+
+    <div id="bench">
+      <section class="panel">
+        <h3>Shop copy</h3>
+        <label for="tagline">Tagline</label>
+        <input id="tagline" type="text" maxlength="160" />
+        <div class="grid-2">
+          <div>
+            <label for="ship-amt">US shipping USD</label>
+            <input id="ship-amt" type="number" min="0" step="1" />
+          </div>
+          <div>
+            <label for="ship-label">Shipping label</label>
+            <input id="ship-label" type="text" maxlength="80" />
+          </div>
+        </div>
+      </section>
+
+      <h2 class="section" style="font-size:28px;">Parts on the bench</h2>
+      <div id="parts"></div>
+
+      <section class="panel" id="new-part">
+        <h3>Add a printed part</h3>
+        <div class="grid-2">
+          <div>
+            <label for="new-name">Name</label>
+            <input id="new-name" type="text" placeholder="Bench Phone Stand" />
+          </div>
+          <div>
+            <label for="new-id">Id (optional)</label>
+            <input id="new-id" type="text" placeholder="phone-stand" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label for="new-price">Price USD</label>
+            <input id="new-price" type="number" min="0" step="1" value="12" />
+          </div>
+          <div>
+            <label for="new-stock">Stock</label>
+            <input id="new-stock" type="number" min="0" step="1" value="1" />
+          </div>
+        </div>
+        <label for="new-summary">Summary</label>
+        <textarea id="new-summary" placeholder="What the buyer gets. The part, not the file."></textarea>
+        <div class="grid-4">
+          <div>
+            <label for="new-size">Size</label>
+            <input id="new-size" type="text" placeholder="90 x 90 x 7 mm" />
+          </div>
+          <div>
+            <label for="new-layer">Layer</label>
+            <input id="new-layer" type="text" value="0.2 mm" />
+          </div>
+          <div>
+            <label for="new-filament">Filament</label>
+            <input id="new-filament" type="text" placeholder="~18 g PLA" />
+          </div>
+          <div>
+            <label for="new-time">Print time</label>
+            <input id="new-time" type="text" placeholder="~1 h" />
+          </div>
+        </div>
+        <div class="row">
+          <button class="save" id="add-part" type="button">Add part</button>
+          <span class="status" id="add-status"></span>
+        </div>
+      </section>
+    </div>
+
+    <footer class="shop">MandMs3DPrints — Matt and Misti's 3D Prints — local bench — writes products.json — public shop never sees this page as a storefront</footer>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let products = [];
+    let store = {};
+
+    function setBanner(text, kind) {
+      var el = $("banner");
+      el.textContent = text;
+      el.className = "status" + (kind ? " " + kind : "");
+    }
+
+    function field(part, key, label, type, extra) {
+      extra = extra || {};
+      var value = extra.value != null ? extra.value : (part[key] != null ? part[key] : "");
+      return (
+        "<div>" +
+          "<label for=\"" + part.id + "-" + key + "\">" + label + "</label>" +
+          "<input id=\"" + part.id + "-" + key + "\" data-id=\"" + part.id + "\" data-field=\"" + key + "\" type=\"" + (type || "text") + "\" value=\"" + escapeAttr(value) + "\"" +
+            (extra.min != null ? " min=\"" + extra.min + "\"" : "") +
+            (extra.step ? " step=\"" + extra.step + "\"" : "") +
+          " />" +
+        "</div>"
+      );
+    }
+
+    function escapeAttr(value) {
+      return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function readPartCard(id) {
+      var specs = {};
+      ["size", "layer", "filament", "time"].forEach(function (key) {
+        var el = document.getElementById(id + "-" + key);
+        specs[key] = el ? el.value : "";
+      });
+      return {
+        id: id,
+        name: document.getElementById(id + "-name").value,
+        price: document.getElementById(id + "-price").value,
+        stock: document.getElementById(id + "-stock").value,
+        summary: document.getElementById(id + "-summary").value,
+        hidden: document.getElementById(id + "-hidden").checked,
+        specs: specs
+      };
+    }
+
+    function renderParts() {
+      $("parts").innerHTML = products.map(function (p) {
+        var specs = p.specs || {};
+        var hidden = !!p.hidden;
+        return (
+          "<article class=\"panel" + (hidden ? " hidden-card" : "") + "\" data-card=\"" + p.id + "\">" +
+            "<h3>" + escapeHtml(p.name) + " <span class=\"pill" + (hidden ? "" : " hot") + "\">" + (hidden ? "hidden" : "on shop") + "</span></h3>" +
+            "<div class=\"grid-2\">" +
+              field(p, "name", "Name") +
+              "<div><label>Id</label><input value=\"" + escapeAttr(p.id) + "\" readonly /></div>" +
+            "</div>" +
+            "<div class=\"grid-2\">" +
+              field(p, "price", "Price USD", "number", { min: 0, step: 1 }) +
+              field(p, "stock", "Stock", "number", { min: 0, step: 1 }) +
+            "</div>" +
+            "<label for=\"" + p.id + "-summary\">Summary</label>" +
+            "<textarea id=\"" + p.id + "-summary\" data-id=\"" + p.id + "\" data-field=\"summary\">" + escapeHtml(p.summary || "") + "</textarea>" +
+            "<div class=\"grid-4\">" +
+              field(p, "size", "Size", "text", { value: specs.size || "" }) +
+              field(p, "layer", "Layer", "text", { value: specs.layer || "" }) +
+              field(p, "filament", "Filament", "text", { value: specs.filament || "" }) +
+              field(p, "time", "Print time", "text", { value: specs.time || "" }) +
+            "</div>" +
+            "<div class=\"row\">" +
+              "<label style=\"display:flex;align-items:center;gap:8px;margin:0;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink);\">" +
+                "<input id=\"" + p.id + "-hidden\" type=\"checkbox\"" + (hidden ? " checked" : "") + " style=\"width:auto;min-height:0;\" /> Hide from shop" +
+              "</label>" +
+              "<button class=\"save\" type=\"button\" data-save=\"" + p.id + "\">Save part</button>" +
+              "<button class=\"danger\" type=\"button\" data-delete=\"" + p.id + "\">Remove</button>" +
+            "</div>" +
+          "</article>"
+        );
+      }).join("") || "<p class=\"lede\">No parts yet. Add one below.</p>";
+    }
+
+    function applyBench(data) {
+      store = data.store || {};
+      products = data.products || [];
+      $("tagline").value = store.tagline || "";
+      $("ship-amt").value = (store.shipping && store.shipping.amount != null) ? store.shipping.amount : 8;
+      $("ship-label").value = (store.shipping && store.shipping.label) || "USPS Ground Advantage";
+      renderParts();
+    }
+
+    function loadBench() {
+      fetch("/api/bench").then(function (r) { return r.json().then(function (data) { return { ok: r.ok, status: r.status, data: data }; }); }).then(function (res) {
+        if (!res.ok) {
+          $("lock").classList.add("show");
+          $("bench").style.display = "none";
+          setBanner(res.data.error || "The bench is locked.", "err");
+          return;
+        }
+        $("lock").classList.remove("show");
+        $("bench").style.display = "block";
+        applyBench(res.data);
+        setBanner(products.length + " printed parts on the bench. Save writes products.json.", "ok");
+      }).catch(function () {
+        $("lock").classList.add("show");
+        $("bench").style.display = "none";
+        setBanner("Shop server did not answer. Start the local shop first.", "err");
+      });
+    }
+
+    function post(url, body) {
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      }).then(function (r) { return r.json().then(function (data) { return { http: r.status, data: data }; }); });
+    }
+
+    $("save-all").addEventListener("click", function () {
+      var next = products.map(function (p) { return readPartCard(p.id); });
+      $("save-all").disabled = true;
+      post("/api/bench", {
+        store: {
+          tagline: $("tagline").value,
+          shipping: { amount: $("ship-amt").value, label: $("ship-label").value }
+        },
+        products: next
+      }).then(function (res) {
+        $("save-all").disabled = false;
+        if (!res.data.ok) {
+          setBanner(res.data.error || "Save failed.", "err");
+          return;
+        }
+        applyBench(res.data);
+        setBanner("Catalog saved. Shop page will pick it up on refresh.", "ok");
+      }).catch(function () {
+        $("save-all").disabled = false;
+        setBanner("Shop server did not answer.", "err");
+      });
+    });
+
+    $("add-part").addEventListener("click", function () {
+      $("add-status").textContent = "";
+      post("/api/bench/product", {
+        id: $("new-id").value,
+        name: $("new-name").value,
+        price: $("new-price").value,
+        stock: $("new-stock").value,
+        summary: $("new-summary").value,
+        specs: {
+          size: $("new-size").value,
+          layer: $("new-layer").value,
+          filament: $("new-filament").value,
+          time: $("new-time").value
+        }
+      }).then(function (res) {
+        if (!res.data.ok) {
+          $("add-status").textContent = res.data.error || "Could not add.";
+          $("add-status").className = "status err";
+          return;
+        }
+        applyBench({ store: store, products: res.data.products });
+        $("new-name").value = "";
+        $("new-id").value = "";
+        $("new-summary").value = "";
+        $("new-size").value = "";
+        $("new-filament").value = "";
+        $("new-time").value = "";
+        $("add-status").textContent = "Part is on the bench.";
+        $("add-status").className = "status ok";
+        setBanner("Added a printed part. It is live on the shop unless you hide it.", "ok");
+      }).catch(function () {
+        $("add-status").textContent = "Shop server did not answer.";
+        $("add-status").className = "status err";
+      });
+    });
+
+    document.addEventListener("click", function (e) {
+      var saveId = e.target.getAttribute("data-save");
+      var deleteId = e.target.getAttribute("data-delete");
+      if (saveId) {
+        post("/api/bench/product", readPartCard(saveId)).then(function (res) {
+          if (!res.data.ok) {
+            setBanner(res.data.error || "Part did not save.", "err");
+            return;
+          }
+          applyBench({ store: store, products: res.data.products });
+          setBanner(res.data.product.name + " saved.", "ok");
+        }).catch(function () { setBanner("Shop server did not answer.", "err"); });
+      }
+      if (deleteId) {
+        if (!window.confirm("Remove this part from the catalog? This cannot be undone from the bench.")) return;
+        post("/api/bench/delete", { id: deleteId }).then(function (res) {
+          if (!res.data.ok) {
+            setBanner(res.data.error || "Could not remove.", "err");
+            return;
+          }
+          applyBench({ store: store, products: res.data.products });
+          setBanner("Part removed from the catalog.", "ok");
+        }).catch(function () { setBanner("Shop server did not answer.", "err"); });
+      }
+    });
+
+    function setChatBanner(text, kind) {
+      var el = $("chat-banner");
+      el.textContent = text;
+      el.className = "status" + (kind ? " " + kind : "");
+    }
+
+    function whoLabel(role) {
+      if (role === "visitor") return "Customer";
+      if (role === "bench") return "You";
+      return "Receipt";
+    }
+
+    function renderChats(threads) {
+      var drafts = {};
+      Array.prototype.forEach.call(document.querySelectorAll("#chat-list textarea[id^=\"reply-\"]"), function (box) {
+        drafts[box.id] = box.value;
+      });
+      if (!threads.length) {
+        $("chat-list").innerHTML = "<p class=\"lede\">No shop chats yet. When a visitor uses Ask the bench, it lands here.</p>";
+        return;
+      }
+      $("chat-list").innerHTML = threads.map(function (t) {
+        var lines = (t.messages || []).map(function (msg) {
+          return "<div class=\"chat-line " + escapeAttr(msg.from || "") + "\"><span class=\"who\">" + whoLabel(msg.from) + "</span>" + escapeHtml(msg.text || "") + "</div>";
+        }).join("");
+        return (
+          "<article class=\"panel\" data-chat=\"" + escapeAttr(t.id) + "\">" +
+            "<h3>" + escapeHtml(t.name || "Visitor") +
+              (t.pending ? " <span class=\"pill hot\">" + t.pending + " waiting</span>" : " <span class=\"pill\">answered</span>") +
+            "</h3>" +
+            "<p class=\"preview\">" + escapeHtml(t.preview || "") + "</p>" +
+            "<div class=\"chat-log\">" + lines + "</div>" +
+            "<label for=\"reply-" + escapeAttr(t.id) + "\">Reply on the page</label>" +
+            "<textarea id=\"reply-" + escapeAttr(t.id) + "\" maxlength=\"800\" placeholder=\"This shows in their bubble, not in Discord.\"></textarea>" +
+            "<div class=\"row\">" +
+              "<button class=\"save\" type=\"button\" data-reply=\"" + escapeAttr(t.id) + "\">Send reply</button>" +
+              "<button class=\"danger\" type=\"button\" data-drop-chat=\"" + escapeAttr(t.id) + "\">Clear chat</button>" +
+            "</div>" +
+          "</article>"
+        );
+      }).join("");
+      Object.keys(drafts).forEach(function (id) {
+        var box = document.getElementById(id);
+        if (box && drafts[id]) box.value = drafts[id];
+      });
+    }
+
+    function loadChats() {
+      fetch("/api/bench/chats").then(function (r) {
+        return r.json().then(function (data) { return { ok: r.ok, data: data }; });
+      }).then(function (res) {
+        if (!res.ok) {
+          setChatBanner(res.data.error || "Chat inbox is locked.", "err");
+          return;
+        }
+        renderChats(res.data.threads || []);
+        var pending = res.data.pending || 0;
+        setChatBanner(
+          (res.data.count || 0) + " shop chats" + (pending ? " — " + pending + " waiting on a reply." : "."),
+          pending ? "" : "ok"
+        );
+      }).catch(function () {
+        setChatBanner("Shop server did not answer.", "err");
+      });
+    }
+
+    document.addEventListener("click", function (e) {
+      var replyId = e.target.getAttribute("data-reply");
+      var dropId = e.target.getAttribute("data-drop-chat");
+      if (replyId) {
+        var box = document.getElementById("reply-" + replyId);
+        var text = box ? box.value : "";
+        post("/api/bench/chat", { id: replyId, text: text }).then(function (res) {
+          if (!res.data.ok) {
+            setChatBanner(res.data.error || "Reply did not send.", "err");
+            return;
+          }
+          loadChats();
+          setChatBanner("Reply is on their page.", "ok");
+        }).catch(function () { setChatBanner("Shop server did not answer.", "err"); });
+      }
+      if (dropId) {
+        if (!window.confirm("Clear this shop chat? The visitor will start a new one next time.")) return;
+        post("/api/bench/chat/delete", { id: dropId }).then(function (res) {
+          if (!res.data.ok) {
+            setChatBanner(res.data.error || "Could not clear.", "err");
+            return;
+          }
+          loadChats();
+          setChatBanner("Chat cleared.", "ok");
+        }).catch(function () { setChatBanner("Shop server did not answer.", "err"); });
+      }
+    });
+
+    loadBench();
+    loadChats();
+    setInterval(loadChats, 8000);
+  </script>
+</body>
+</html>
