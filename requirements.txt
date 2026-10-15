@@ -1,0 +1,2 @@
+# MandMs3DPrints shop uses the Python standard library only.
+# Stripe Checkout is called over HTTPS. Do not add the Stripe SDK.

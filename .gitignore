@@ -1,0 +1,10 @@
+.env
+.env.*
+chats.json
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+.wrangler/
+data/orders.json
+files/*.stl
