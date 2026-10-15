@@ -760,7 +760,7 @@
       padding: 12px;
       border-top: 1px solid var(--line);
     }
-    .bag-form input, .bag-form textarea {
+    .bag-form input, .bag-form textarea, .bag-form select {
       width: 100%;
       background: var(--soot);
       color: var(--ink);
@@ -770,6 +770,25 @@
       font-family: inherit;
     }
     .bag-form textarea { min-height: 64px; resize: vertical; }
+    .bag-ship-legend {
+      margin: 4px 0 0;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ember-2);
+    }
+    .bag-ship-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .bag-ship-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .bag-ship-grid .span-2 { grid-column: 1 / -1; }
     .bag-form button[type="submit"] {
       min-height: 44px;
       background: var(--ember);
@@ -945,8 +964,20 @@ What truly sets us apart is that we can make nearly anything you need. If you ha
       <input id="bag-name" type="text" maxlength="40" autocomplete="name" placeholder="Name (optional)" />
       <label class="sr-only" for="bag-email">Email so we can write back</label>
       <input id="bag-email" type="email" maxlength="80" autocomplete="email" required placeholder="Email so we can write back" />
-      <label class="sr-only" for="bag-ship">Where it ships</label>
-      <textarea id="bag-ship" maxlength="400" required placeholder="City, state, and anything we should know"></textarea>
+      <p class="bag-ship-legend" id="bag-ship-legend">Shipping address</p>
+      <p class="bag-ship-note" id="bag-ship-note">Required. We cannot ship a Key Ring Friend without a US street address.</p>
+      <div class="bag-ship-grid" role="group" aria-labelledby="bag-ship-legend">
+        <label class="sr-only" for="bag-line1">Street address</label>
+        <input class="span-2" id="bag-line1" type="text" maxlength="80" autocomplete="shipping address-line1" required placeholder="Street address" />
+        <label class="sr-only" for="bag-line2">Apt, suite, unit (optional)</label>
+        <input class="span-2" id="bag-line2" type="text" maxlength="40" autocomplete="shipping address-line2" placeholder="Apt, suite, unit (optional)" />
+        <label class="sr-only" for="bag-city">City</label>
+        <input class="span-2" id="bag-city" type="text" maxlength="40" autocomplete="shipping address-level2" required placeholder="City" />
+        <label class="sr-only" for="bag-state">State</label>
+        <input id="bag-state" type="text" maxlength="2" autocomplete="shipping address-level1" required placeholder="State" aria-describedby="bag-ship-note" />
+        <label class="sr-only" for="bag-zip">ZIP</label>
+        <input id="bag-zip" type="text" maxlength="10" inputmode="numeric" autocomplete="shipping postal-code" required placeholder="ZIP" />
+      </div>
       <button type="submit" id="bag-send">Pay now</button>
       <p class="mm-status" id="bag-status"></p>
     </form>
@@ -1233,10 +1264,14 @@ What truly sets us apart is that we can make nearly anything you need. If you ha
       var form = document.getElementById("bag-form");
       var nameEl = document.getElementById("bag-name");
       var emailEl = document.getElementById("bag-email");
-      var shipEl = document.getElementById("bag-ship");
+      var line1El = document.getElementById("bag-line1");
+      var line2El = document.getElementById("bag-line2");
+      var cityEl = document.getElementById("bag-city");
+      var stateEl = document.getElementById("bag-state");
+      var zipEl = document.getElementById("bag-zip");
       var sendEl = document.getElementById("bag-send");
       var statusEl = document.getElementById("bag-status");
-      if (!toggle || !panel || !form) return;
+      if (!toggle || !panel || !form || !line1El || !cityEl || !stateEl || !zipEl) return;
 
       function money(cents) {
         return "$" + (cents / 100).toFixed(2);
@@ -1374,8 +1409,25 @@ What truly sets us apart is that we can make nearly anything you need. If you ha
         var items = loadBag();
         if (!items.length) return;
         var email = (emailEl.value || "").trim();
-        var ship = (shipEl.value || "").trim();
-        if (!email || !ship) return;
+        var shipping = {
+          line1: (line1El.value || "").trim(),
+          line2: (line2El.value || "").trim(),
+          city: (cityEl.value || "").trim(),
+          state: (stateEl.value || "").trim().toUpperCase(),
+          postal_code: (zipEl.value || "").trim()
+        };
+        if (!email || !shipping.line1 || !shipping.city || !shipping.state || !shipping.postal_code) {
+          setStatus("Shipping address is required.", "err");
+          return;
+        }
+        if (!/^[A-Z]{2}$/.test(shipping.state)) {
+          setStatus("State must be two letters.", "err");
+          return;
+        }
+        if (!/^\d{5}(?:-\d{4})?$/.test(shipping.postal_code)) {
+          setStatus("ZIP must be 5 digits.", "err");
+          return;
+        }
         sendEl.disabled = true;
         setStatus("Opening Stripe…");
         fetch("/api/bag", {
@@ -1384,7 +1436,7 @@ What truly sets us apart is that we can make nearly anything you need. If you ha
           body: JSON.stringify({
             name: nameEl.value,
             email: email,
-            ship_to: ship,
+            shipping: shipping,
             items: items
           })
         }).then(function (r) {
