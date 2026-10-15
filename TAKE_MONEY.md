@@ -16,8 +16,8 @@ Stripe connected in ABILITIES is not enough by itself. The shop host still needs
 ## What the customer does
 
 1. Pick **1**, **5**, or **10** of one Key Ring Friend. Not mix and match. Different animals stay separate lines, each its own 1 / 5 / 10 pack.
-2. Bag opens. They enter email and where it ships (name optional).
-3. They click **Pay now**.
+2. Bag opens. They enter email and a US shipping address: street, city, state, ZIP. Name is optional. Apt is optional.
+3. They click **Pay now**. The shop will not open Stripe without that address.
 
 Prices the shop will send to Stripe:
 - 1 = $4.99
@@ -26,9 +26,9 @@ Prices the shop will send to Stripe:
 
 ## What the shop does (no card on our page)
 
-4. Browser `POST /api/bag` with name, email, ship-to, and the pack lines.
-5. Server refuses empty bags, qty that is not 1 / 5 / 10, and two lines of the same animal.
-6. Server creates a Stripe Checkout Session (`mode=payment`) with those line items, their email, and ship-to in metadata.
+4. Browser `POST /api/bag` with name, email, structured shipping, and the pack lines.
+5. Server refuses empty bags, qty that is not 1 / 5 / 10, two lines of the same animal, and a missing or incomplete shipping address.
+6. Server creates a Stripe Checkout Session (`mode=payment`) with those line items, their email, ship-to in metadata, and `shipping_address_collection` required for the US. Stripe Checkout also asks for the shipping address.
 7. Server returns `checkout_url`.
 8. Browser sends them to Stripe-hosted Checkout (`checkout.stripe.com`).
 
@@ -56,3 +56,5 @@ The success page is a thank-you, not proof you can skip the Dashboard. Stripe sa
 - **Want what we got?** is email to `mandms3dprints@gmail.com`. It does not take money.
 - Connecting the Stripe *query* connector in StarNet does not charge cards. The shop charges with `STRIPE_SECRET_KEY` on the host.
 - Coloring-book / MandMs2DPrints pages stay parked. This sequence is 3D shop only.
+
+Sources: `shop/index.html` (Pay now → `/api/bag` → `checkout_url`), `shop/server.py` (`_handle_bag_post`, `stripe_checkout_session`), https://docs.stripe.com/payments/checkout/how-checkout-works, https://docs.stripe.com/payments/checkout/fulfillment, https://docs.stripe.com/payouts
