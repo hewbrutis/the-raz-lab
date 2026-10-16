@@ -440,7 +440,7 @@ def bag_mail_body(name, email, ship_to, items, total_cents):
         "Items (not mix and match; each pack is one animal):\n%s\n\n"
         "Animals: %s\n"
         "Due: %s\n\n"
-        "This is an order request, not a paid checkout. Write back with how to pay.\n"
+        "This is an order request, not a paid checkout. We will print and ship.\n"
     ) % (
         name,
         email,
