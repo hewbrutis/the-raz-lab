@@ -41,6 +41,7 @@ VIDEO_DIR = os.environ.get(
 )
 VIDEO_JSON = os.path.join(HERE, "videos.json")
 FRIENDS_JSON = os.path.join(HERE, "friends.json")
+# Change Key Ring Friends prices HERE (cents). Shop buttons read these from /api/friends.
 FRIEND_PRICE_SINGLE = 499
 FRIEND_PRICE_FIVE = 1999
 FRIEND_PRICE_TEN = 3799
@@ -241,16 +242,11 @@ def friend_price(qty):
     if cents is None:
         return None
     qty = int(qty)
-    labels = {
-        1: "1 for $4.99",
-        5: "5 for $19.99",
-        10: "10 for $37.99",
-    }
     return {
         "qty": qty,
         "count": qty,
         "total_cents": cents,
-        "label": labels[qty],
+        "label": "%s for %s" % (qty, money_usd(cents)),
     }
 
 
@@ -258,14 +254,36 @@ def money_usd(cents):
     return "$%.2f" % (int(cents) / 100.0)
 
 
+def friend_price_table():
+    packs = []
+    for qty in (1, 5, 10):
+        cents = pack_cents(qty)
+        packs.append({
+            "qty": qty,
+            "cents": cents,
+            "money": money_usd(cents),
+            "label": "%s for %s" % (qty, money_usd(cents)),
+        })
+    return {
+        "single_cents": FRIEND_PRICE_SINGLE,
+        "five_cents": FRIEND_PRICE_FIVE,
+        "ten_cents": FRIEND_PRICE_TEN,
+        "single": money_usd(FRIEND_PRICE_SINGLE),
+        "five": money_usd(FRIEND_PRICE_FIVE),
+        "ten": money_usd(FRIEND_PRICE_TEN),
+        "line": " · ".join(p["label"] for p in packs),
+        "packs": packs,
+    }
+
+
 def load_friends():
     try:
         with open(FRIENDS_JSON, "r") as handle:
             data = json.load(handle)
     except (OSError, ValueError):
-        return {"title": "Key Ring Friends", "lede": "", "items": []}
+        return {"title": "Key Ring Friends", "lede": "", "price": friend_price_table(), "items": []}
     if not isinstance(data, dict):
-        return {"title": "Key Ring Friends", "lede": "", "items": []}
+        return {"title": "Key Ring Friends", "lede": "", "price": friend_price_table(), "items": []}
     items = data.get("items") if isinstance(data.get("items"), list) else []
     out = []
     for item in items:
@@ -292,14 +310,7 @@ def load_friends():
     return {
         "title": (data.get("title") or "Key Ring Friends").strip() or "Key Ring Friends",
         "lede": (data.get("lede") or "").strip(),
-        "price": {
-            "single_cents": FRIEND_PRICE_SINGLE,
-            "five_cents": FRIEND_PRICE_FIVE,
-            "ten_cents": FRIEND_PRICE_TEN,
-            "single": money_usd(FRIEND_PRICE_SINGLE),
-            "five": money_usd(FRIEND_PRICE_FIVE),
-            "ten": money_usd(FRIEND_PRICE_TEN),
-        },
+        "price": friend_price_table(),
         "items": out,
     }
 
