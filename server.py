@@ -471,6 +471,7 @@ def stripe_checkout_session(packed, total_cents, email, name, ship_to, origin):
         ("cancel_url", origin.rstrip("/") + "/#mm-bag"),
         ("customer_email", email),
         ("billing_address_collection", "required"),
+        ("shipping_address_collection[allowed_countries][]", "US"),
         ("payment_intent_data[description]", "Key Ring Friends — MandMs3DPrints"),
         ("payment_intent_data[metadata][shop]", "mandms3dprints"),
         ("payment_intent_data[metadata][name]", name[:80]),
