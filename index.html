@@ -930,7 +930,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
 
     <section class="ask" id="want-one">
       <h2 class="section">Want what we got?</h2>
-      <p class="lede-copy">Animal key chains go in the bag as 1, 5, or 10 of the same animal. $4.99, $19.99, or $37.99. Not mix and match. Send the order and we write back with how to pay. Custom work still starts with Want what we got?</p>
+      <p class="lede-copy" id="want-pack-prices">Animal key chains go in the bag as 1, 5, or 10 of the same animal. $4.99, $19.99, or $37.99. Not mix and match. Send the order and we write back with how to pay. Custom work still starts with Want what we got?</p>
       <ol>
         <li>Send the reel, or name the print.</li>
         <li>Tell us size, color, and where it ships.</li>
@@ -1148,7 +1148,19 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
           .replace(/"/g, "&quot;");
       }
 
-      function friendHtml(item, index, total) {
+      function moneyUsd(cents) {
+        return "$" + (Number(cents) / 100).toFixed(2);
+      }
+
+      function packFromPrice(price, qty) {
+        var packs = (price && price.packs) || [];
+        for (var i = 0; i < packs.length; i++) {
+          if (Number(packs[i].qty) === qty) return packs[i];
+        }
+        return null;
+      }
+
+      function friendHtml(item, index, total, price) {
         var name = escapeHtml(item.name || "Key Ring Friend");
         var src = escapeHtml(item.src || "");
         var poster = escapeHtml(item.poster || "");
@@ -1156,6 +1168,13 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         var video = item.video || null;
         var videoBlock = "";
         var watchLink = "";
+        var p1 = packFromPrice(price, 1);
+        var p5 = packFromPrice(price, 5);
+        var p10 = packFromPrice(price, 10);
+        var money1 = escapeHtml((p1 && p1.money) || (price && price.single) || "$4.99");
+        var money5 = escapeHtml((p5 && p5.money) || (price && price.five) || "$19.99");
+        var money10 = escapeHtml((p10 && p10.money) || (price && price.ten) || "$37.99");
+        var priceLine = escapeHtml((price && price.line) || ("1 for " + money1 + " · 5 for " + money5 + " · 10 for " + money10));
         if (video && video.embed) {
           var embed = escapeHtml(video.embed);
           var href = escapeHtml(video.permalink || video.embed);
@@ -1175,11 +1194,11 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
               '<div class="clip-meta"><span>' + name + "</span>" + watchLink + "</div>" +
               '<p class="friend-copy">' + summary + "</p>" +
               '<div class="friend-buy">' +
-                '<p class="friend-price">Same animal only<span>1 for $4.99 · 5 for $19.99 · 10 for $37.99</span></p>' +
+                '<p class="friend-price">Same animal only<span>' + priceLine + "</span></p>" +
                 '<div class="buy-packs">' +
-                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="1">1<span>$4.99</span></button>' +
-                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="5">5<span>$19.99</span></button>' +
-                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="10">10<span>$37.99</span></button>' +
+                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="1">1<span>' + money1 + "</span></button>" +
+                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="5">5<span>' + money5 + "</span></button>" +
+                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="10">10<span>' + money10 + "</span></button>" +
                 "</div>" +
                 '<button type="button" class="buy-ask" data-open-chat data-friend="' + name + '">Ask about this one</button>' +
               "</div>" +
@@ -1241,7 +1260,15 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
           root.innerHTML = "";
           return;
         }
-        var slides = items.map(function (item, i) { return friendHtml(item, i, items.length); }).join("");
+        var price = data.price || {};
+        var priceBlurb = document.getElementById("want-pack-prices");
+        if (priceBlurb && price.line) {
+          priceBlurb.textContent =
+            "Animal key chains go in the bag as 1, 5, or 10 of the same animal. " +
+            price.single + ", " + price.five + ", or " + price.ten +
+            ". Not mix and match. Send the order and we write back with how to pay. Custom work still starts with Want what we got?";
+        }
+        var slides = items.map(function (item, i) { return friendHtml(item, i, items.length, price); }).join("");
         root.innerHTML =
           '<section class="group" data-group="key-ring-friends" aria-labelledby="group-key-ring-friends">' +
             '<div class="group-head">' +
@@ -1272,6 +1299,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
       var PRICE_TEN = 3799;
       var PACKS = { 1: PRICE_SINGLE, 5: PRICE_FIVE, 10: PRICE_TEN };
       var LABELS = { 1: "1 for $4.99", 5: "5 for $19.99", 10: "10 for $37.99" };
+
       var KEY = "mandms-bag";
       var toggle = document.getElementById("bag-toggle");
       var countEl = document.getElementById("bag-count");
@@ -1290,6 +1318,20 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
 
       function money(cents) {
         return "$" + (cents / 100).toFixed(2);
+      }
+
+      function applyServerPrices(price) {
+        if (!price) return;
+        var packs = price.packs || [];
+        packs.forEach(function (pack) {
+          var qty = Number(pack.qty);
+          if (!qty) return;
+          PACKS[qty] = Number(pack.cents);
+          LABELS[qty] = pack.label || (qty + " for " + (pack.money || money(pack.cents)));
+        });
+        if (price.single_cents) PRICE_SINGLE = Number(price.single_cents);
+        if (price.five_cents) PRICE_FIVE = Number(price.five_cents);
+        if (price.ten_cents) PRICE_TEN = Number(price.ten_cents);
       }
 
       function packCents(qty) {
@@ -1459,14 +1501,26 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         });
       });
 
-      if (/[?&]paid=1(?:&|$)/.test(location.search || "")) {
-        saveBag([]);
-        renderBag();
-        openBag();
-        setStatus("Paid. Stripe has the money. We print and ship next.", "ok");
-      } else {
-        renderBag();
-      }
+      fetch("/api/friends").then(function (r) { return r.json(); }).then(function (data) {
+        applyServerPrices(data.price);
+        if (/[?&]paid=1(?:&|$)/.test(location.search || "")) {
+          saveBag([]);
+          renderBag();
+          openBag();
+          setStatus("Paid. Stripe has the money. We print and ship next.", "ok");
+        } else {
+          renderBag();
+        }
+      }).catch(function () {
+        if (/[?&]paid=1(?:&|$)/.test(location.search || "")) {
+          saveBag([]);
+          renderBag();
+          openBag();
+          setStatus("Paid. Stripe has the money. We print and ship next.", "ok");
+        } else {
+          renderBag();
+        }
+      });
     })();
 
     (function () {
