@@ -68,8 +68,7 @@ RECEIPT_TEXT = (
     "Got it. We emailed the bench. Reply comes back to the address you left."
 )
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-STATE_RE = re.compile(r"^[A-Za-z]{2}$")
-ZIP_RE = re.compile(r"^\d{5}(?:-\d{4})?$")
+MAX_SHIP_TO = 400
 
 
 def stripe_secret():
@@ -379,39 +378,32 @@ def clean_chat_email(raw):
     return email
 
 
-def clean_shipping_address(raw):
-    if not isinstance(raw, dict):
-        raise ValueError("Shipping address is required.")
-    line1 = clean_plain(raw.get("line1") or raw.get("street"), "Street address", 80)
-    line2 = clean_plain(raw.get("line2") or raw.get("apt"), "Apt", 40)
-    city = clean_plain(raw.get("city"), "City", 40)
-    state = clean_plain(raw.get("state"), "State", 2).upper()
-    postal = clean_plain(raw.get("postal_code") or raw.get("zip"), "ZIP", 10)
-    if not line1:
-        raise ValueError("Street address is required.")
-    if not city:
-        raise ValueError("City is required.")
-    if not STATE_RE.match(state):
-        raise ValueError("State must be two letters.")
-    if not ZIP_RE.match(postal):
-        raise ValueError("ZIP must be 5 digits.")
-    return {
-        "line1": line1,
-        "line2": line2,
-        "city": city,
-        "state": state,
-        "postal_code": postal,
-        "country": "US",
-    }
-
-
-def format_ship_to(addr):
-    lines = [addr.get("line1") or ""]
-    if addr.get("line2"):
-        lines.append(addr["line2"])
-    lines.append("%s, %s %s" % (addr.get("city") or "", addr.get("state") or "", addr.get("postal_code") or ""))
-    lines.append(addr.get("country") or "US")
-    return "\n".join([row for row in lines if row]).strip()
+def clean_ship_to(raw):
+    if isinstance(raw, dict):
+        parts = [
+            raw.get("line1") or raw.get("street") or "",
+            raw.get("line2") or raw.get("apt") or "",
+            raw.get("city") or "",
+            raw.get("state") or "",
+            raw.get("postal_code") or raw.get("zip") or "",
+        ]
+        raw = ", ".join([str(part).strip() for part in parts if str(part).strip()])
+    text = (raw or "").strip()
+    cleaned = []
+    for ch in text:
+        if ch in ("\r", "\t"):
+            cleaned.append(" ")
+        elif ch == "\n":
+            cleaned.append("\n")
+        elif ord(ch) >= 32:
+            cleaned.append(ch)
+    text = re.sub(r"[ ]+", " ", "".join(cleaned))
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    if not text:
+        raise ValueError("Where it ships is required.")
+    if len(text) > MAX_SHIP_TO:
+        raise ValueError("Where it ships is too long.")
+    return text
 
 
 def mail_body(name, email, text):
@@ -458,33 +450,24 @@ def public_origin(handler):
     return "%s://%s" % (proto, host)
 
 
-def stripe_checkout_session(packed, total_cents, email, name, ship, origin):
+def stripe_checkout_session(packed, total_cents, email, name, ship_to, origin):
     secret = stripe_secret()
     if not secret:
         return None, "Connect Stripe in ABILITIES, then set STRIPE_SECRET_KEY on the shop host."
-    ship_to = format_ship_to(ship)
     fields = [
         ("mode", "payment"),
         ("success_url", origin.rstrip("/") + "/?paid=1"),
         ("cancel_url", origin.rstrip("/") + "/#mm-bag"),
         ("customer_email", email),
         ("billing_address_collection", "required"),
-        ("shipping_address_collection[allowed_countries][0]", "US"),
         ("payment_intent_data[description]", "Key Ring Friends — MandMs3DPrints"),
         ("payment_intent_data[metadata][shop]", "mandms3dprints"),
         ("payment_intent_data[metadata][name]", name[:80]),
         ("payment_intent_data[metadata][ship_to]", ship_to[:400]),
-        ("payment_intent_data[metadata][ship_city]", (ship.get("city") or "")[:40]),
-        ("payment_intent_data[metadata][ship_state]", (ship.get("state") or "")[:2]),
-        ("payment_intent_data[metadata][ship_zip]", (ship.get("postal_code") or "")[:10]),
         ("metadata[shop]", "mandms3dprints"),
         ("metadata[name]", name[:80]),
         ("metadata[email]", email[:80]),
         ("metadata[ship_to]", ship_to[:400]),
-        ("metadata[ship_line1]", (ship.get("line1") or "")[:80]),
-        ("metadata[ship_city]", (ship.get("city") or "")[:40]),
-        ("metadata[ship_state]", (ship.get("state") or "")[:2]),
-        ("metadata[ship_zip]", (ship.get("postal_code") or "")[:10]),
         ("metadata[total_cents]", str(total_cents)),
     ]
     for i, row in enumerate(packed):
@@ -959,8 +942,7 @@ class ShopHandler(SimpleHTTPRequestHandler):
             payload = self._read_json()
             name = clean_plain(payload.get("name"), "Name", MAX_CHAT_NAME) or "Visitor"
             email = clean_chat_email(payload.get("email"))
-            ship = clean_shipping_address(payload.get("shipping") or payload.get("ship_to"))
-            ship_to = format_ship_to(ship)
+            ship_to = clean_ship_to(payload.get("ship_to") or payload.get("shipping"))
             items_in = payload.get("items") or []
             if not isinstance(items_in, list) or not items_in:
                 raise ValueError("Bag is empty.")
@@ -1001,7 +983,7 @@ class ShopHandler(SimpleHTTPRequestHandler):
             total_cents,
             email,
             name,
-            ship,
+            ship_to,
             public_origin(self),
         )
         if err or not session:
