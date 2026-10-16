@@ -17,12 +17,7 @@ def post(items, extra=None):
     payload = {
         "name": "Verify",
         "email": "verify@example.com",
-        "shipping": {
-            "line1": "123 Test St",
-            "city": "Austin",
-            "state": "TX",
-            "postal_code": "78701",
-        },
+        "ship_to": "123 Test St, Austin, TX 78701",
         "items": items,
     }
     if extra:
@@ -70,31 +65,27 @@ def main():
     check("send-email", "Send email" in html)
     check("form-line", "Enter your email and tell us what you need below" in html)
     check("no-eleven-copy", "eleven" not in html.lower())
-    check("ship-form", 'id="bag-line1"' in html and 'id="bag-city"' in html and 'id="bag-state"' in html and 'id="bag-zip"' in html)
-    check("ship-required-copy", "We cannot ship a Key Ring Friend without a US street address" in html)
-    check("no-old-ship-box", 'id="bag-ship"' not in html)
-    check("stripe-ship", 'shipping_address_collection[allowed_countries][0]' in open(os.path.join(HERE, "server.py"), encoding="utf-8").read())
+    check("ship-box", 'id="bag-ship"' in html and "Where it ships" in html)
+    check("no-ship-form", 'id="bag-line1"' not in html and 'id="bag-city"' not in html and 'id="bag-zip"' not in html)
+    src = open(os.path.join(HERE, "server.py"), encoding="utf-8").read()
+    check("no-stripe-ship-form", "shipping_address_collection" not in src)
+    check("ship-to-meta", 'metadata[ship_to]' in src)
 
-    addr = server.clean_shipping_address({
+    addr = server.clean_ship_to("123 Test St\nAustin, TX 78701")
+    check("addr-ok", "123 Test St" in addr and "Austin, TX 78701" in addr, addr)
+    missing = None
+    try:
+        server.clean_ship_to("   ")
+    except ValueError as err:
+        missing = str(err)
+    check("addr-empty-rejected", missing == "Where it ships is required.", missing)
+    joined = server.clean_ship_to({
         "line1": "123 Test St",
         "city": "Austin",
-        "state": "tx",
+        "state": "TX",
         "postal_code": "78701",
     })
-    check("addr-ok", addr["state"] == "TX" and addr["country"] == "US", addr["state"])
-    check("addr-format", "123 Test St" in server.format_ship_to(addr) and "Austin, TX 78701" in server.format_ship_to(addr))
-    missing = None
-    try:
-        server.clean_shipping_address("123 Test St")
-    except ValueError as err:
-        missing = str(err)
-    check("addr-string-rejected", missing == "Shipping address is required.", missing)
-    missing = None
-    try:
-        server.clean_shipping_address({"line1": "123 Test St", "city": "Austin", "state": "TX"})
-    except ValueError as err:
-        missing = str(err)
-    check("addr-zip-required", missing == "ZIP must be 5 digits.", missing)
+    check("addr-dict-joined", "123 Test St" in joined and "Austin" in joined, joined)
 
     code, payload = post([{"id": "bronco", "qty": 11}])
     check("api-qty11", code == 400, payload.get("error") if isinstance(payload, dict) else payload)
@@ -102,10 +93,8 @@ def main():
     check("api-qty6", code == 400, payload.get("error") if isinstance(payload, dict) else payload)
     code, payload = post([{"id": "bronco", "qty": 1}, {"id": "bronco", "qty": 5}])
     check("api-dup", code == 400, payload.get("error") if isinstance(payload, dict) else payload)
-    code, payload = post([{"id": "bronco", "qty": 1}], extra={"shipping": {}})
+    code, payload = post([{"id": "bronco", "qty": 1}], extra={"ship_to": ""})
     check("api-no-ship", code == 400, payload.get("error") if isinstance(payload, dict) else payload)
-    code, payload = post([{"id": "bronco", "qty": 1}], extra={"shipping": "123 Test St"})
-    check("api-ship-string", code == 400, payload.get("error") if isinstance(payload, dict) else payload)
 
     print("OVERALL", "PASS" if all(results) else "FAIL")
 

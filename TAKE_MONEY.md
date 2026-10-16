@@ -16,8 +16,8 @@ Stripe connected in ABILITIES is not enough by itself. The shop host still needs
 ## What the customer does
 
 1. Pick **1**, **5**, or **10** of one Key Ring Friend. Not mix and match. Different animals stay separate lines, each its own 1 / 5 / 10 pack.
-2. Bag opens. They enter email and a US shipping address: street, city, state, ZIP. Name is optional. Apt is optional.
-3. They click **Pay now**. The shop will not open Stripe without that address.
+2. Bag opens. They enter email and **Where it ships** in one text box. Name is optional.
+3. They click **Pay now**. The shop will not open Stripe without that text.
 
 Prices the shop will send to Stripe:
 - 1 = $4.99
@@ -26,9 +26,9 @@ Prices the shop will send to Stripe:
 
 ## What the shop does (no card on our page)
 
-4. Browser `POST /api/bag` with name, email, structured shipping, and the pack lines.
-5. Server refuses empty bags, qty that is not 1 / 5 / 10, two lines of the same animal, and a missing or incomplete shipping address.
-6. Server creates a Stripe Checkout Session (`mode=payment`) with those line items, their email, ship-to in metadata, and `shipping_address_collection` required for the US. Stripe Checkout asks for the shipping address. Do not set `payment_intent_data[shipping]` at the same time — Stripe returns: “You can not collect shipping address and specify shipping payment intent data simultaneously.”
+4. Browser `POST /api/bag` with name, email, `ship_to` text, and the pack lines.
+5. Server refuses empty bags, qty that is not 1 / 5 / 10, two lines of the same animal, and a missing ship-to text box.
+6. Server creates a Stripe Checkout Session (`mode=payment`) with those line items, their email, and ship-to in metadata. Stripe Checkout does **not** use `shipping_address_collection`. The address lives in the text box and in Stripe metadata.
 7. Server returns `checkout_url`.
 8. Browser sends them to Stripe-hosted Checkout (`checkout.stripe.com`).
 
