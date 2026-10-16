@@ -258,28 +258,69 @@
     }
     .shot {
       margin: 0;
-      background: var(--panel);
-      border: 1px dashed var(--line-hot);
+      background: var(--soot);
+      border: 1px solid var(--line);
       min-height: 180px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 14px;
+      overflow: hidden;
       aspect-ratio: 4 / 5;
     }
-    .shot span {
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      line-height: 1.4;
-    }
-    .shot strong {
+    .shot img {
       display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    button.shot {
+      display: block;
+      width: 100%;
+      padding: 0;
+      cursor: zoom-in;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+    }
+    button.shot:hover {
+      border-color: var(--ember);
+    }
+    .zoom {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      background: rgba(7, 7, 6, 0.88);
+      border: 0;
+      cursor: zoom-out;
+    }
+    .zoom.open { display: flex; }
+    .zoom img {
+      display: block;
+      max-width: min(96vw, 1100px);
+      max-height: calc(100vh - 48px);
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border: 1px solid var(--line-hot);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+      pointer-events: none;
+    }
+    .zoom-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 12px;
+      background: var(--panel);
       color: var(--ember-2);
-      font-size: 13px;
-      letter-spacing: 0.08em;
+      border: 1px solid var(--line-hot);
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      margin-bottom: 4px;
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
     }
     .work {
       margin-top: 40px;
@@ -856,15 +897,15 @@ What truly sets us apart is that we can make nearly anything you need. Custom cr
       </div>
       <aside class="best" aria-label="Print photos">
         <div class="shots">
-          <figure class="shot">
-            <span>A print that left this bench.</span>
-          </figure>
-          <figure class="shot">
-            <span>Same print, in a hand or on a shelf.</span>
-          </figure>
-          <figure class="shot">
-            <span>A lithophane held up to light.</span>
-          </figure>
+          <button type="button" class="shot" data-zoom="photos/1.jpg">
+            <img src="photos/1.jpg" alt="" width="1200" height="1600" />
+          </button>
+          <button type="button" class="shot" data-zoom="photos/2.jpg">
+            <img src="photos/2.jpg" alt="" width="1200" height="1600" />
+          </button>
+          <button type="button" class="shot" data-zoom="photos/3.jpg">
+            <img src="photos/3.jpg" alt="" width="718" height="1600" />
+          </button>
         </div>
       </aside>
     </section>
@@ -955,6 +996,11 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
       <p class="mm-status" id="bag-status"></p>
     </form>
   </section>
+
+  <div class="zoom" id="photo-zoom" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Zoomed print photo">
+    <button type="button" class="zoom-close" id="photo-zoom-close">Close</button>
+    <img id="photo-zoom-img" alt="" />
+  </div>
 
   <script>
     (function () {
@@ -1507,6 +1553,43 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
           sendEl.disabled = false;
           setStatus("Could not send. Instagram is @mandms3dprints if this box dies.", "err");
         });
+      });
+    })();
+
+    (function () {
+      var zoom = document.getElementById("photo-zoom");
+      var zoomImg = document.getElementById("photo-zoom-img");
+      var closeBtn = document.getElementById("photo-zoom-close");
+      if (!zoom || !zoomImg) return;
+      var lastBtn = null;
+
+      function openZoom(src, btn) {
+        zoomImg.src = src;
+        zoom.classList.add("open");
+        zoom.setAttribute("aria-hidden", "false");
+        lastBtn = btn || null;
+        if (closeBtn) closeBtn.focus();
+      }
+
+      function closeZoom() {
+        zoom.classList.remove("open");
+        zoom.setAttribute("aria-hidden", "true");
+        zoomImg.removeAttribute("src");
+        if (lastBtn) lastBtn.focus();
+      }
+
+      document.querySelectorAll("[data-zoom]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          openZoom(btn.getAttribute("data-zoom"), btn);
+        });
+      });
+
+      zoom.addEventListener("click", function (e) {
+        if (e.target === zoom || e.target === closeBtn) closeZoom();
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && zoom.classList.contains("open")) closeZoom();
       });
     })();
   </script>
