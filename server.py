@@ -42,7 +42,7 @@ VIDEO_DIR = os.environ.get(
 VIDEO_JSON = os.path.join(HERE, "videos.json")
 FRIENDS_JSON = os.path.join(HERE, "friends.json")
 # Change Key Ring Friends prices HERE (cents). Shop buttons read these from /api/friends.
-FRIEND_PRICE_SINGLE = 199
+FRIEND_PRICE_SINGLE = 499
 FRIEND_PRICE_FIVE = 1999
 FRIEND_PRICE_TEN = 3799
 FRIENDS_DIR = os.environ.get(
