@@ -463,8 +463,14 @@
       position: static;
       inset: auto;
       width: 100%;
-      height: 100%;
+      height: auto;
+      min-height: 0;
+    }
+    .ig-embed {
+      width: 100%;
+      min-width: 326px;
       min-height: 540px;
+      background: #fff;
     }
     .clip-frame .instagram-media {
       display: block;
@@ -1073,7 +1079,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         openLabel = "Open on Instagram";
         kind = (v && v.kind === "p") ? "Post" : "Reel";
         frameClass = "clip-frame is-ig";
-        inner = '<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' + permalink + '?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style="background:#FFF;border:0;border-radius:3px;box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15);margin:1px;max-width:540px;min-width:326px;padding:0;width:99.375%"><div style="padding:16px"><a href="' + permalink + '?utm_source=ig_embed&amp;utm_campaign=loading" style="background:#FFFFFF;line-height:0;padding:0 0;text-align:center;text-decoration:none;width:100%" target="_blank" rel="noopener">View this post on Instagram</a></div></blockquote>';
+        inner = '<div class="ig-embed" data-ig-permalink="' + permalink + '"></div>';
       }
       return {
         permalink: permalink,
@@ -1086,10 +1092,43 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
       };
     }
 
+    function officialIgBlockquote(permalink) {
+      var href = permalink + "?utm_source=ig_embed&amp;utm_campaign=loading";
+      return (
+        '<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' + href + '" data-instgrm-version="14" style="background:#FFF;border:0;border-radius:3px;box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15);margin:1px;max-width:540px;min-width:326px;padding:0;width:99.375%">' +
+          '<div style="padding:16px">' +
+            '<a href="' + href + '" style="background:#FFFFFF;line-height:0;padding:0 0;text-align:center;text-decoration:none;width:100%" target="_blank" rel="noopener">View this post on Instagram</a>' +
+          "</div>" +
+        "</blockquote>"
+      );
+    }
+
+    function hydrateVisibleInstagramEmbeds(root) {
+      var scope = root || document;
+      var slots = scope.querySelectorAll(".ig-embed[data-ig-permalink]");
+      var hydrated = 0;
+      for (var i = 0; i < slots.length; i++) {
+        var slot = slots[i];
+        if (slot.getAttribute("data-ig-ready") === "1") continue;
+        var rect = slot.getBoundingClientRect();
+        var near = rect.bottom > -80 && rect.top < (window.innerHeight + 80) && rect.right > -80 && rect.left < (window.innerWidth + 80);
+        if (!near) continue;
+        var permalink = slot.getAttribute("data-ig-permalink") || "";
+        if (!permalink) continue;
+        slot.innerHTML = officialIgBlockquote(permalink);
+        slot.setAttribute("data-ig-ready", "1");
+        hydrated += 1;
+      }
+      if (hydrated && window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === "function") {
+        window.instgrm.Embeds.process();
+      }
+    }
+
     function processInstagramEmbeds() {
+      hydrateVisibleInstagramEmbeds(document);
       function run() {
         if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === "function") {
-          window.instgrm.Embeds.process();
+          hydrateVisibleInstagramEmbeds(document);
           return true;
         }
         return false;
@@ -1100,6 +1139,12 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         tries += 1;
         if (run() || tries > 40) clearInterval(timer);
       }, 250);
+    }
+
+    if (!window.__igLazyBound) {
+      window.__igLazyBound = true;
+      window.addEventListener("scroll", function () { hydrateVisibleInstagramEmbeds(document); }, { passive: true });
+      window.addEventListener("resize", function () { hydrateVisibleInstagramEmbeds(document); });
     }
 
           (function () {
@@ -1148,6 +1193,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
           if (counter) counter.textContent = (i + 1) + " / " + slides.length;
           if (prev) prev.disabled = i <= 0;
           if (next) next.disabled = i >= max;
+          hydrateVisibleInstagramEmbeds(group);
         }
 
         function go(dir) {
@@ -1337,6 +1383,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
           if (counter) counter.textContent = (i + 1) + " / " + slides.length;
           if (prev) prev.disabled = i <= 0;
           if (next) next.disabled = i >= max;
+          hydrateVisibleInstagramEmbeds(group);
         }
 
         function go(dir) {
