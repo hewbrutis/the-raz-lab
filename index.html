@@ -1099,6 +1099,45 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
       );
     }
 
+    function igSlotNear(slot) {
+      var rect = slot.getBoundingClientRect();
+      return rect.bottom > -80 && rect.top < (window.innerHeight + 80) && rect.right > -80 && rect.left < (window.innerWidth + 80);
+    }
+
+    function igSlotHasPlayer(slot) {
+      return !!(slot && slot.querySelector("iframe.instagram-media-rendered, iframe.instagram-media"));
+    }
+
+    function callInstagramProcess() {
+      if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === "function") {
+        window.instgrm.Embeds.process();
+        return true;
+      }
+      return false;
+    }
+
+    function finishIgHydrate() {
+      window.__igHydrating = false;
+      hydrateVisibleInstagramEmbeds(document);
+    }
+
+    function waitForIgPlayer(slot, done) {
+      var tries = 0;
+      var timer = setInterval(function () {
+        tries += 1;
+        if (igSlotHasPlayer(slot)) {
+          clearInterval(timer);
+          done(true);
+          return;
+        }
+        if (tries % 4 === 0) callInstagramProcess();
+        if (tries > 40) {
+          clearInterval(timer);
+          done(false);
+        }
+      }, 200);
+    }
+
     function hydrateVisibleInstagramEmbeds(root) {
       if (window.__igHydrating) return;
       var scope = root || document;
@@ -1107,9 +1146,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
       for (var i = 0; i < slots.length; i++) {
         var slot = slots[i];
         if (slot.getAttribute("data-ig-ready") === "1") continue;
-        var rect = slot.getBoundingClientRect();
-        var near = rect.bottom > -40 && rect.top < (window.innerHeight + 40) && rect.right > -40 && rect.left < (window.innerWidth + 40);
-        if (!near) continue;
+        if (!igSlotNear(slot)) continue;
         chosen = slot;
         break;
       }
@@ -1119,23 +1156,17 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
       window.__igHydrating = true;
       chosen.innerHTML = officialIgBlockquote(permalink);
       chosen.setAttribute("data-ig-ready", "1");
-      if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === "function") {
-        window.instgrm.Embeds.process();
-      }
-      setTimeout(function () {
-        window.__igHydrating = false;
-        hydrateVisibleInstagramEmbeds(document);
-      }, 700);
+      callInstagramProcess();
+      waitForIgPlayer(chosen, function () {
+        finishIgHydrate();
+      });
     }
 
     function processInstagramEmbeds() {
-      hydrateVisibleInstagramEmbeds(document);
       function run() {
-        if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === "function") {
-          hydrateVisibleInstagramEmbeds(document);
-          return true;
-        }
-        return false;
+        var ready = callInstagramProcess();
+        hydrateVisibleInstagramEmbeds(document);
+        return ready;
       }
       if (run()) return;
       var tries = 0;
@@ -1143,6 +1174,20 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         tries += 1;
         if (run() || tries > 40) clearInterval(timer);
       }, 250);
+    }
+
+    if (!window.__igClickGuard) {
+      window.__igClickGuard = true;
+      document.addEventListener("click", function (e) {
+        var slot = e.target && e.target.closest ? e.target.closest(".ig-embed") : null;
+        if (!slot) return;
+        if (igSlotHasPlayer(slot)) return;
+        var link = e.target.closest ? e.target.closest("a") : null;
+        if (!link || !/instagram\.com/i.test(link.href || "")) return;
+        e.preventDefault();
+        e.stopPropagation();
+        callInstagramProcess();
+      }, true);
     }
 
     if (!window.__igLazyBound) {
