@@ -6,6 +6,7 @@
   <title>The Raz LAB — MandMs3DPrints</title>
   <meta name="description" content="Matt and Misti print lithophanes and animal key chains you can buy, plus custom car parts, house stuff, and one-offs. Want what we got? Need something that is not listed? Tell us." />
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+  <script async src="https://www.instagram.com/embed.js"></script>
   <style>
     :root {
       --bg: #0b0a09;
@@ -438,13 +439,40 @@
       overflow: hidden;
       isolation: isolate;
     }
-    .clip-frame iframe {
+    .clip-frame.is-ig {
+      aspect-ratio: auto;
+      height: auto;
+      min-height: 0;
+      overflow: visible;
+    }
+    .clip-frame.is-tt {
+      aspect-ratio: auto;
+      height: 540px;
+      min-height: 540px;
+    }
+    .clip-frame > iframe {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       border: 0;
       background: #000;
+    }
+    .clip-frame.is-ig > iframe,
+    .clip-frame.is-ig iframe {
+      position: static;
+      inset: auto;
+      width: 100%;
+      height: 100%;
+      min-height: 540px;
+    }
+    .clip-frame .instagram-media {
+      display: block;
+      margin: 0 !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      background: #000 !important;
     }
     .clip-meta {
       display: flex;
@@ -512,9 +540,31 @@
       max-height: 220px;
       aspect-ratio: auto;
     }
+    .friends-row .clip-frame.is-ig {
+      max-height: none;
+      height: auto;
+      min-height: 0;
+      overflow: visible;
+    }
+    .friends-row .clip-frame.is-tt {
+      max-height: none;
+      height: 480px;
+      min-height: 480px;
+    }
     .friends-row .clip-frame iframe {
       position: relative;
       height: 220px;
+    }
+    .friends-row .clip-frame.is-ig iframe {
+      position: static;
+      inset: auto;
+      height: auto;
+      min-height: 480px;
+    }
+    .friends-row .clip-frame.is-tt iframe {
+      position: absolute;
+      inset: 0;
+      height: 100%;
     }
     .work-empty { color: var(--muted); font-size: 14px; }
     footer.shop {
@@ -1003,21 +1053,66 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
   </div>
 
   <script>
-    (function () {
-      var root = document.getElementById("work-groups");
+
+    function shopVideoPlayer(v, title) {
+      var embedRaw = String((v && v.embed) || "");
+      var isTikTok = (v && v.source === "tiktok") || embedRaw.indexOf("tiktok.com") !== -1;
+      var id = (v && v.id) || "";
+      var permalink, openLabel, kind, frameClass, inner;
+      if (isTikTok) {
+        permalink = (v && v.permalink) || ("https://www.tiktok.com/video/" + id);
+        openLabel = "Open on TikTok";
+        kind = "Video";
+        frameClass = "clip-frame is-tt";
+        inner = '<iframe src="https://www.tiktok.com/player/v1/' + id + '" loading="lazy" scrolling="no" allowtransparency="true" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" title="' + title + '"></iframe>';
+      } else {
+        var igKind = (v && (v.kind === "p" || v.kind === "tv")) ? v.kind : "reel";
+        permalink = String((v && v.permalink) || ("https://www.instagram.com/" + igKind + "/" + id + "/"))
+          .replace("/embed/captioned/", "/")
+          .replace("/embed/", "/");
+        openLabel = "Open on Instagram";
+        kind = (v && v.kind === "p") ? "Post" : "Reel";
+        frameClass = "clip-frame is-ig";
+        inner = '<blockquote class="instagram-media" data-instgrm-permalink="' + permalink + '" data-instgrm-version="14"></blockquote>';
+      }
+      return {
+        permalink: permalink,
+        openLabel: openLabel,
+        kind: kind,
+        frame:
+          '<div class="' + frameClass + '">' +
+            inner +
+          "</div>"
+      };
+    }
+
+    function processInstagramEmbeds() {
+      function run() {
+        if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === "function") {
+          window.instgrm.Embeds.process();
+          return true;
+        }
+        return false;
+      }
+      if (run()) return;
+      var tries = 0;
+      var timer = setInterval(function () {
+        tries += 1;
+        if (run() || tries > 40) clearInterval(timer);
+      }, 250);
+    }
+
+          (function () {
+        var root = document.getElementById("work-groups");
       if (!root) return;
 
       function clipHtml(cat, v, index, total) {
-        var embed = v.embed || ("https://www.instagram.com/" + v.kind + "/" + v.id + "/embed/");
-        var href = v.permalink || embed.replace("/embed/", "/");
-        var kind = v.kind === "p" ? "Post" : "Reel";
+        var player = shopVideoPlayer(v, cat.name + " print " + (index + 1));
         return (
           '<article class="slide" aria-label="' + cat.name + " " + (index + 1) + " of " + total + '">' +
             '<div class="clip">' +
-              '<div class="clip-frame">' +
-                '<iframe src="' + embed + '" loading="lazy" scrolling="no" allowtransparency="true" allow="encrypted-media" title="' + cat.name + " print " + (index + 1) + '"></iframe>' +
-              "</div>" +
-              '<div class="clip-meta"><span>' + kind + "</span><a href=\"" + href + "\" target=\"_blank\" rel=\"noopener\">Open on Instagram</a></div>" +
+              player.frame +
+              '<div class="clip-meta"><span>' + player.kind + "</span><a href=\"" + player.permalink + "\" target=\"_blank\" rel=\"noopener\">" + player.openLabel + "</a></div>" +
             "</div>" +
           "</article>"
         );
@@ -1127,10 +1222,19 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         }).join("");
         var groups = root.querySelectorAll(".group");
         for (var i = 0; i < groups.length; i++) bindCarousel(groups[i]);
-      }
+      processInstagramEmbeds();
+        }
 
-      fetch("/api/videos").then(function (r) { return r.json(); }).then(function (data) {
-        render(data.categories || []);
+      function loadVideos() {
+        return fetch("/api/videos").then(function (r) {
+          if (!r.ok) throw new Error("videos-api");
+          return r.json();
+        }).catch(function () {
+          return fetch("videos.json").then(function (r) { return r.json(); });
+        });
+      }
+      loadVideos().then(function (data) {
+        render((data && data.categories) || []);
       }).catch(function () {
         render([]);
       });
@@ -1175,15 +1279,10 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         var money5 = escapeHtml((p5 && p5.money) || (price && price.five) || "$19.99");
         var money10 = escapeHtml((p10 && p10.money) || (price && price.ten) || "$37.99");
         var priceLine = escapeHtml((price && price.line) || ("1 for " + money1 + " · 5 for " + money5 + " · 10 for " + money10));
-        if (video && video.embed) {
-          var embed = escapeHtml(video.embed);
-          var href = escapeHtml(video.permalink || video.embed);
-          var openLabel = video.source === "tiktok" ? "Open on TikTok" : "Open on Instagram";
-          videoBlock =
-            '<div class="clip-frame">' +
-              '<iframe src="' + embed + '" loading="lazy" scrolling="no" allowtransparency="true" allow="encrypted-media; fullscreen" title="' + name + ' reel"></iframe>' +
-            "</div>";
-          watchLink = '<a href="' + href + '" target="_blank" rel="noopener">' + openLabel + "</a>";
+        if (video && (video.permalink || video.embed || video.id)) {
+          var player = shopVideoPlayer(video, name + " reel");
+          videoBlock = player.frame;
+          watchLink = '<a href="' + escapeHtml(player.permalink) + '" target="_blank" rel="noopener">' + player.openLabel + "</a>";
         }
         return (
           '<article class="slide" aria-label="' + name + " " + (index + 1) + " of " + total + '">' +
@@ -1254,7 +1353,15 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         sync();
       }
 
-      fetch("/api/friends").then(function (r) { return r.json(); }).then(function (data) {
+      function loadFriends() {
+        return fetch("/api/friends").then(function (r) {
+          if (!r.ok) throw new Error("friends-api");
+          return r.json();
+        }).catch(function () {
+          return fetch("friends.json").then(function (r) { return r.json(); });
+        });
+      }
+      loadFriends().then(function (data) {
         var items = data.items || [];
         if (!items.length) {
           root.innerHTML = "";
@@ -1288,6 +1395,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
             "</div>" +
           "</section>";
         bindCarousel(root.querySelector(".group"));
+        processInstagramEmbeds();
       }).catch(function () {
         root.innerHTML = "";
       });
