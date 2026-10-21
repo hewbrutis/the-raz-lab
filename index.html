@@ -464,8 +464,7 @@
     }
     .clip-frame .instagram-media {
       display: block;
-      margin: 0 !important;
-      width: 100% !important;
+      margin: 0 auto !important;
       min-width: 326px !important;
       max-width: 540px !important;
       background: #FFF !important;
@@ -1085,31 +1084,33 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
     function officialIgBlockquote(permalink) {
       var href = permalink + "?utm_source=ig_embed&amp;utm_campaign=loading";
       return (
-        '<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' + href + '" data-instgrm-version="14" style="background:#FFF;border:0;border-radius:3px;box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15);margin:1px;max-width:540px;min-width:326px;padding:0;width:99.375%">' +
-          '<div style="padding:16px">' +
-            '<a href="' + href + '" style="background:#FFFFFF;line-height:0;padding:0 0;text-align:center;text-decoration:none;width:100%" target="_blank" rel="noopener">View this post on Instagram</a>' +
-          "</div>" +
-        "</blockquote>"
+        '<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' + href + '" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);">' +
+          '<div style="padding:16px;">' +
+            '<a href="' + href + '" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank" rel="noopener">View this post on Instagram</a>' +
+          '</div>' +
+        '</blockquote>'
       );
     }
 
     function hydrateVisibleInstagramEmbeds(root) {
       var scope = root || document;
       var slots = scope.querySelectorAll(".ig-embed[data-ig-permalink]");
-      var hydrated = 0;
+      var chosen = null;
       for (var i = 0; i < slots.length; i++) {
         var slot = slots[i];
         if (slot.getAttribute("data-ig-ready") === "1") continue;
         var rect = slot.getBoundingClientRect();
-        var near = rect.bottom > -80 && rect.top < (window.innerHeight + 80) && rect.right > -80 && rect.left < (window.innerWidth + 80);
-        if (!near) continue;
-        var permalink = slot.getAttribute("data-ig-permalink") || "";
-        if (!permalink) continue;
-        slot.innerHTML = officialIgBlockquote(permalink);
-        slot.setAttribute("data-ig-ready", "1");
-        hydrated += 1;
+        var fully = rect.top >= 0 && rect.bottom <= window.innerHeight && rect.left >= 0 && rect.right <= window.innerWidth && rect.width >= 326 && rect.height > 40;
+        if (!fully) continue;
+        chosen = slot;
+        break;
       }
-      if (hydrated && window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === "function") {
+      if (!chosen) return;
+      var permalink = chosen.getAttribute("data-ig-permalink") || "";
+      if (!permalink) return;
+      chosen.innerHTML = officialIgBlockquote(permalink);
+      chosen.setAttribute("data-ig-ready", "1");
+      if (window.instgrm && window.instgrm.Embeds && typeof window.instgrm.Embeds.process === "function") {
         window.instgrm.Embeds.process();
       }
     }
