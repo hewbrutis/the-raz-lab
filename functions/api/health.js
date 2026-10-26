@@ -1,12 +1,12 @@
 import { json } from "../_lib.js";
 
-export async function onRequestGet(context) {
-  const secret = (context.env && (context.env.STRIPE_SECRET_KEY || context.env.STRIPE_API_KEY)) || "";
+export async function onRequestGet() {
   return json({
     ok: true,
     kind: "physical",
-    mode: secret ? "live" : "catalog",
-    stripe: Boolean(secret),
+    mode: "catalog",
+    stripe: false,
     host: "cloudflare-pages",
+    buying: false,
   });
 }
