@@ -1,48 +1,48 @@
 {
   "title": "Key Ring Friends",
-  "lede": "Pick 1, 5, or 10 of the same animal. Not mix and match. Drag to spin one, then pick a pack.",
+  "lede": "Examples of animal key chains from this bench. Drag to spin one, then tell us which you want.",
   "items": [
     {
       "id": "big-hoof-energy",
       "name": "Big Hoof Energy",
       "src": "/models/big-hoof-energy.glb",
       "poster": "/models/previews/big-hoof-energy.png",
-      "summary": "A ram from the Key Ring Friends bench. Animal key chain, for sale."
+      "summary": "A ram from the Key Ring Friends bench. Animal key chain from this bench."
     },
     {
       "id": "bronco",
       "name": "Bronco",
       "src": "/models/bronco.glb",
       "poster": "/models/previews/bronco.png",
-      "summary": "Buck It Bronco. Animal key chain, for sale."
+      "summary": "Buck It Bronco. Animal key chain from this bench."
     },
     {
       "id": "hip-whip-hippo",
       "name": "Hip Whip Hippo",
       "src": "/models/hip-whip-hippo.glb",
       "poster": "/models/previews/hip-whip-hippo.png",
-      "summary": "A hippo from this bench. Animal key chain, for sale."
+      "summary": "A hippo from this bench. Animal key chain from this bench."
     },
     {
       "id": "rad-bug",
       "name": "Rad Bug",
       "src": "/models/rad-bug.glb",
       "poster": "/models/previews/rad-bug.png",
-      "summary": "Hot rod bug. Animal key chain, for sale."
+      "summary": "Hot rod bug. Animal key chain from this bench."
     },
     {
       "id": "suber-moo",
       "name": "Suber Moo",
       "src": "/models/suber-moo.glb",
       "poster": "/models/previews/suber-moo.png",
-      "summary": "A cow from this bench. Animal key chain, for sale."
+      "summary": "A cow from this bench. Animal key chain from this bench."
     },
     {
       "id": "colo-rad-goat",
       "name": "Colo Rad Goat",
       "src": "/models/colo-rad-goat.glb",
       "poster": "/models/previews/colo-rad-goat.png",
-      "summary": "A goat from this bench. Animal key chain, for sale."
+      "summary": "A goat from this bench. Animal key chain from this bench."
     }
   ]
 }
