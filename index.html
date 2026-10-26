@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Raz LAB — MandMs3DPrints</title>
-  <meta name="description" content="Matt and Misti print lithophanes and animal key chains you can buy, plus custom car parts, house stuff, and one-offs. Want what we got? Need something that is not listed? Tell us." />
+  <meta name="description" content="Matt and Misti print lithophanes and animal key chains, plus custom car parts, house stuff, and one-offs. Want what we got? Need something that is not listed? Tell us." />
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
   <script async src="https://www.instagram.com/embed.js"></script>
   <style>
@@ -924,7 +924,6 @@
         <a href="#from-printer">From the printer</a>
         <a href="#want-one">Want what we got?</a>
         <a href="#custom">We make what you need.</a>
-        <button type="button" class="bag-link" id="bag-toggle" aria-expanded="false" aria-controls="mm-bag">Bag <span id="bag-count">0</span></button>
       </nav>
     </header>
 
@@ -977,7 +976,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
 
     <section class="ask" id="want-one">
       <h2 class="section">Want what we got?</h2>
-      <p class="lede-copy" id="want-pack-prices">Animal key chains go in the bag as 1, 5, or 10 of the same animal. $4.99, $19.99, or $37.99. Not mix and match. Send the order and we will print and ship. Custom work still starts with Want what we got?</p>
+      <p class="lede-copy" id="want-pack-prices">Animal key chains are examples of what we print. Message us if you want one, or a custom. We quote. You pay only after you like the number.</p>
       <ol>
         <li>Send the reel, or name the print.</li>
         <li>Tell us size, color, and where it ships.</li>
@@ -1021,28 +1020,6 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
     </form>
   </section>
 
-  <section class="bag-panel" id="mm-bag" role="dialog" aria-labelledby="mm-bag-title" aria-modal="false">
-    <div class="bag-head">
-      <div>
-        <h2 id="mm-bag-title">Your bag</h2>
-        <p>Pick 1, 5, or 10 of the same animal. Not mix and match.</p>
-      </div>
-      <button type="button" class="bag-close" id="bag-close">Close</button>
-    </div>
-    <div class="bag-lines" id="bag-lines"></div>
-    <p class="bag-deal" id="bag-deal"></p>
-    <p class="bag-total" id="bag-total"></p>
-    <form class="bag-form" id="bag-form">
-      <label class="sr-only" for="bag-name">Name (optional)</label>
-      <input id="bag-name" type="text" maxlength="40" autocomplete="name" placeholder="Name (optional)" />
-      <label class="sr-only" for="bag-email">Email so we can write back</label>
-      <input id="bag-email" type="email" maxlength="80" autocomplete="email" required placeholder="Email so we can write back" />
-      <label class="sr-only" for="bag-ship">Where it ships</label>
-      <textarea id="bag-ship" maxlength="400" required placeholder="Where it ships"></textarea>
-      <button type="submit" id="bag-send">Pay now</button>
-      <p class="mm-status" id="bag-status"></p>
-    </form>
-  </section>
 
   <div class="zoom" id="photo-zoom" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Zoomed print photo">
     <button type="button" class="zoom-close" id="photo-zoom-close">Close</button>
@@ -1263,7 +1240,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         "Car Parts, Mechanical Things": "Examples of parts we can make for you. Lost a clip, a knob, a bracket? Send a photo and a measurement. We will tell you if this bench can make it before you pay.",
         "For the House!": "Examples of house stuff we can print. Need a hook, a stand, an organizer? Tell us what you need.",
         "One of a kind Lithophanes": "Message us with what you want. Unfortunatly these are not for sale, rather exmaples of what we can do!  Use a white light or upgrade to colored lights to give it that extra trippy vibe! These are PERFECT gift ideas, I'm telling you. 100% customizable for ANYONE.",
-        "Key Chain Animals": "These animal key chains are for sale, or if you want, we can one specifically for you! A pet, farm animal, favorite bird or dinosaurs, heck even imaginary creatures. Whatever you like is yours.",
+        "Key Chain Animals": "These animal key chains are examples of what we print, or if you want, we can make one specifically for you! A pet, farm animal, favorite bird or dinosaurs, heck even imaginary creatures. Whatever you like is yours.",
         "Random Funzies": "More examples of what we can make. If you like something or get a cool idea for something, just tell us what you want.",
         "Special Requests": "Someone asked. We made it. A one-off, a gift, a creature that is not on the other rows. Tell us what you need."
       };
@@ -1363,7 +1340,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         var name = escapeHtml(item.name || "Key Ring Friend");
         var src = escapeHtml(item.src || "");
         var poster = escapeHtml(item.poster || "");
-        var summary = escapeHtml(item.summary || "Animal key chain, for sale.");
+        var summary = escapeHtml(item.summary || "Animal key chain from this bench.");
         var video = item.video || null;
         var videoBlock = "";
         var watchLink = "";
@@ -1388,12 +1365,6 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
               '<div class="clip-meta"><span>' + name + "</span>" + watchLink + "</div>" +
               '<p class="friend-copy">' + summary + "</p>" +
               '<div class="friend-buy">' +
-                '<p class="friend-price">Same animal only<span>' + priceLine + "</span></p>" +
-                '<div class="buy-packs">' +
-                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="1">1<span>' + money1 + "</span></button>" +
-                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="5">5<span>' + money5 + "</span></button>" +
-                  '<button type="button" class="buy-btn" data-add-friend="' + escapeHtml(item.id || "") + '" data-friend-name="' + name + '" data-pack="10">10<span>' + money10 + "</span></button>" +
-                "</div>" +
                 '<button type="button" class="buy-ask" data-open-chat data-friend="' + name + '">Ask about this one</button>' +
               "</div>" +
               videoBlock +
@@ -1467,9 +1438,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         var priceBlurb = document.getElementById("want-pack-prices");
         if (priceBlurb && price.line) {
           priceBlurb.textContent =
-            "Animal key chains go in the bag as 1, 5, or 10 of the same animal. " +
-            price.single + ", " + price.five + ", or " + price.ten +
-            ". Not mix and match. Send the order and we will print and ship. Custom work still starts with Want what we got?";
+            "Animal key chains are examples of what we print. Message us if you want one, or a custom. We quote. You pay only after you like the number.";
         }
         var slides = items.map(function (item, i) { return friendHtml(item, i, items.length, price); }).join("");
         root.innerHTML =
@@ -1477,7 +1446,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
             '<div class="group-head">' +
               "<div>" +
                 '<h3 id="group-key-ring-friends">' + escapeHtml(data.title || "Key Ring Friends") + "</h3>" +
-                '<p class="group-meta">' + items.length + " for sale</p>" +
+                '<p class="group-meta">' + items.length + " on the bench</p>" +
               "</div>" +
               '<div class="carousel-nav">' +
                 '<span class="counter" data-counter>1 / ' + items.length + "</span>" +
@@ -1485,7 +1454,7 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
                 '<button type="button" data-next aria-label="Next Key Ring Friend">Next</button>' +
               "</div>" +
             "</div>" +
-            '<p class="group-blurb">' + escapeHtml(data.lede || "These animal key chains are for sale. Drag to spin one, then tell us which you want.") + "</p>" +
+            '<p class="group-blurb">' + escapeHtml(data.lede || "These animal key chains are examples of what we print. Drag to spin one, then tell us which you want.") + "</p>" +
             '<div class="carousel" role="region" aria-roledescription="carousel" aria-label="Key Ring Friends">' +
               '<div class="track" tabindex="0">' + slides + "</div>" +
             "</div>" +
@@ -1494,236 +1463,6 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         processInstagramEmbeds();
       }).catch(function () {
         root.innerHTML = "";
-      });
-    })();
-
-    (function () {
-      var PRICE_SINGLE = 499;
-      var PRICE_FIVE = 1999;
-      var PRICE_TEN = 3799;
-      var PACKS = { 1: PRICE_SINGLE, 5: PRICE_FIVE, 10: PRICE_TEN };
-      var LABELS = { 1: "1 for $4.99", 5: "5 for $19.99", 10: "10 for $37.99" };
-
-      var KEY = "mandms-bag";
-      var toggle = document.getElementById("bag-toggle");
-      var countEl = document.getElementById("bag-count");
-      var panel = document.getElementById("mm-bag");
-      var closeBtn = document.getElementById("bag-close");
-      var linesEl = document.getElementById("bag-lines");
-      var dealEl = document.getElementById("bag-deal");
-      var totalEl = document.getElementById("bag-total");
-      var form = document.getElementById("bag-form");
-      var nameEl = document.getElementById("bag-name");
-      var emailEl = document.getElementById("bag-email");
-      var shipEl = document.getElementById("bag-ship");
-      var sendEl = document.getElementById("bag-send");
-      var statusEl = document.getElementById("bag-status");
-      if (!toggle || !panel || !form || !shipEl) return;
-
-      function money(cents) {
-        return "$" + (cents / 100).toFixed(2);
-      }
-
-      function applyServerPrices(price) {
-        if (!price) return;
-        var packs = price.packs || [];
-        packs.forEach(function (pack) {
-          var qty = Number(pack.qty);
-          if (!qty) return;
-          PACKS[qty] = Number(pack.cents);
-          LABELS[qty] = pack.label || (qty + " for " + (pack.money || money(pack.cents)));
-        });
-        if (price.single_cents) PRICE_SINGLE = Number(price.single_cents);
-        if (price.five_cents) PRICE_FIVE = Number(price.five_cents);
-        if (price.ten_cents) PRICE_TEN = Number(price.ten_cents);
-      }
-
-      function packCents(qty) {
-        return PACKS[qty] || null;
-      }
-
-      function loadBag() {
-        try {
-          var raw = JSON.parse(localStorage.getItem(KEY) || "[]");
-          if (!Array.isArray(raw)) return [];
-          return raw.filter(function (row) {
-            var qty = parseInt(row && row.qty, 10);
-            return row && row.id && row.name && packCents(qty);
-          }).map(function (row) {
-            return { id: String(row.id), name: String(row.name), qty: parseInt(row.qty, 10) };
-          });
-        } catch (e) {
-          return [];
-        }
-      }
-
-      function saveBag(items) {
-        try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {}
-      }
-
-      function countBag(items) {
-        return items.reduce(function (n, row) { return n + row.qty; }, 0);
-      }
-
-      function totalBag(items) {
-        return items.reduce(function (n, row) { return n + packCents(row.qty); }, 0);
-      }
-
-      function setStatus(text, kind) {
-        statusEl.textContent = text || "";
-        statusEl.className = "mm-status" + (kind ? " " + kind : "");
-      }
-
-      function dealText(items) {
-        if (!items.length) return "";
-        return items.map(function (row) {
-          return row.name + ": " + LABELS[row.qty];
-        }).join(" · ") + ". Not mix and match.";
-      }
-
-      function openBag() {
-        panel.classList.add("open");
-        toggle.setAttribute("aria-expanded", "true");
-      }
-
-      function closeBag() {
-        panel.classList.remove("open");
-        toggle.setAttribute("aria-expanded", "false");
-        setStatus("");
-      }
-
-      function renderBag() {
-        var items = loadBag();
-        var count = countBag(items);
-        var total = totalBag(items);
-        countEl.textContent = String(count);
-        toggle.setAttribute("data-filled", count ? "true" : "false");
-        if (!items.length) {
-          linesEl.innerHTML = '<p class="bag-empty">Bag is empty. Pick 1, 5, or 10 of a Key Ring Friend.</p>';
-          dealEl.textContent = "";
-          totalEl.innerHTML = "";
-          sendEl.disabled = true;
-          return;
-        }
-        linesEl.innerHTML = items.map(function (row) {
-          return (
-            '<div class="bag-line" data-id="' + row.id.replace(/"/g, "") + '">' +
-              "<div><h3>" + row.name.replace(/</g, "") + "</h3>" +
-              '<p class="bag-line-meta">' + LABELS[row.qty] + "</p></div>" +
-              '<div class="bag-qty">' +
-                '<button type="button" data-bag-remove="' + row.id.replace(/"/g, "") + '" aria-label="Remove ' + row.name.replace(/"/g, "") + '">Remove</button>' +
-              "</div>" +
-            "</div>"
-          );
-        }).join("");
-        dealEl.textContent = dealText(items);
-        totalEl.innerHTML = "Due <strong>" + money(total) + "</strong>";
-        sendEl.disabled = false;
-      }
-
-      function setItem(id, name, qty) {
-        if (!id || !name || !packCents(qty)) return;
-        var items = loadBag().filter(function (row) { return row.id !== id; });
-        items.push({ id: id, name: name, qty: qty });
-        saveBag(items);
-        renderBag();
-      }
-
-      function removeItem(id) {
-        saveBag(loadBag().filter(function (row) { return row.id !== id; }));
-        renderBag();
-      }
-
-      toggle.addEventListener("click", function () {
-        if (panel.classList.contains("open") || location.hash === "#mm-bag") closeBag();
-        else { renderBag(); openBag(); }
-      });
-      if (closeBtn) closeBtn.addEventListener("click", closeBag);
-      function openFromHash() {
-        if (location.hash === "#mm-bag" || location.hash === "#bag") {
-          renderBag();
-          openBag();
-        }
-      }
-      openFromHash();
-      window.addEventListener("hashchange", openFromHash);
-
-      document.addEventListener("click", function (e) {
-        var node = e.target;
-        if (node && node.nodeType !== 1) node = node.parentElement;
-        var addBtn = node && node.closest ? node.closest("[data-add-friend]") : null;
-        if (addBtn) {
-          var pack = parseInt(addBtn.getAttribute("data-pack"), 10);
-          setItem(addBtn.getAttribute("data-add-friend"), addBtn.getAttribute("data-friend-name"), pack);
-          openBag();
-          setStatus("Added " + (LABELS[pack] || "") + ".", "ok");
-          return;
-        }
-        var removeBtn = node && node.closest ? node.closest("[data-bag-remove]") : null;
-        if (removeBtn) {
-          removeItem(removeBtn.getAttribute("data-bag-remove"));
-        }
-      });
-
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        var items = loadBag();
-        if (!items.length) return;
-        var email = (emailEl.value || "").trim();
-        var shipTo = (shipEl.value || "").trim();
-        if (!email || !shipTo) {
-          setStatus("Email and where it ships are required.", "err");
-          return;
-        }
-        sendEl.disabled = true;
-        setStatus("Opening Stripe…");
-        fetch("/api/bag", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: nameEl.value,
-            email: email,
-            ship_to: shipTo,
-            items: items
-          })
-        }).then(function (r) {
-          return r.json().then(function (data) { return { ok: r.ok, data: data }; });
-        }).then(function (res) {
-          if (!res.ok || !(res.data && res.data.checkout_url)) {
-            sendEl.disabled = false;
-            setStatus((res.data && res.data.error) || "Could not start payment.", "err");
-            renderBag();
-            return;
-          }
-          try { localStorage.setItem("mandms-chat-email", email); } catch (err) {}
-          setStatus("Taking you to Stripe to pay.", "ok");
-          window.location = res.data.checkout_url;
-        }).catch(function () {
-          sendEl.disabled = false;
-          setStatus("Could not start payment.", "err");
-          renderBag();
-        });
-      });
-
-      fetch("/api/friends").then(function (r) { return r.json(); }).then(function (data) {
-        applyServerPrices(data.price);
-        if (/[?&]paid=1(?:&|$)/.test(location.search || "")) {
-          saveBag([]);
-          renderBag();
-          openBag();
-          setStatus("Paid. Stripe has the money. We print and ship next.", "ok");
-        } else {
-          renderBag();
-        }
-      }).catch(function () {
-        if (/[?&]paid=1(?:&|$)/.test(location.search || "")) {
-          saveBag([]);
-          renderBag();
-          openBag();
-          setStatus("Paid. Stripe has the money. We print and ship next.", "ok");
-        } else {
-          renderBag();
-        }
       });
     })();
 
