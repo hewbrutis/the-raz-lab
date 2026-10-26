@@ -80,8 +80,7 @@ def stripe_secret():
 
 
 def shop_mode():
-    if stripe_secret():
-        return "live"
+    # Buying is closed. Catalog/browse only; never advertise Stripe as live.
     if HOST in ("127.0.0.1", "localhost", "::1"):
         return "demo"
     return "catalog"
@@ -118,7 +117,7 @@ def parse_embed_text(text):
             "kind": kind,
             "source": "instagram",
             "permalink": "https://www.instagram.com/%s/%s/" % (kind, code),
-            "embed": "https://www.instagram.com/%s/%s/embed/" % (kind, code),
+            "embed": "https://www.instagram.com/%s/%s/embed/captioned/" % (kind, code),
         })
     for match in TIKTOK_RE.finditer(text or ""):
         handle, code = match.group(1), match.group(2)
@@ -819,7 +818,8 @@ class ShopHandler(SimpleHTTPRequestHandler):
                 "ok": True,
                 "kind": "physical",
                 "mode": shop_mode(),
-                "stripe": bool(stripe_secret()),
+                "stripe": False,
+                "buying": False,
                 "shipping_usd": ship.get("amount", 8),
                 "shipping_label": ship.get("label", "USPS Ground Advantage"),
                 "bench": is_local_client(self),
@@ -873,6 +873,10 @@ class ShopHandler(SimpleHTTPRequestHandler):
         if path != "/api/checkout":
             self.send_error(404)
             return
+        return self._json({
+            "ok": False,
+            "error": "Buying is closed on The Raz LAB. Message us if you want a print.",
+        }, 503)
         if not stripe_secret():
             return self._json({
                 "ok": False,
@@ -950,6 +954,10 @@ class ShopHandler(SimpleHTTPRequestHandler):
             return self._json(public_thread(thread))
 
     def _handle_bag_post(self):
+        return self._json({
+            "ok": False,
+            "error": "Buying is closed on The Raz LAB. Message us if you want a print.",
+        }, 503)
         try:
             payload = self._read_json()
             name = clean_plain(payload.get("name"), "Name", MAX_CHAT_NAME) or "Visitor"
