@@ -55,6 +55,8 @@ export async function onRequestPost(context) {
     _captcha: "false",
   });
 
+  const ac = new AbortController();
+  const timer = setTimeout(function () { ac.abort(); }, 8000);
   let res;
   let raw = "";
   try {
@@ -68,6 +70,7 @@ export async function onRequestPost(context) {
         Origin: origin,
       },
       body: body.toString(),
+      signal: ac.signal,
     });
     raw = await res.text();
   } catch (err) {
@@ -75,6 +78,8 @@ export async function onRequestPost(context) {
       ok: false,
       error: "Could not reach the mail host. Instagram is @mandms3dprints if this box dies.",
     }, 502);
+  } finally {
+    clearTimeout(timer);
   }
 
   let data = {};
