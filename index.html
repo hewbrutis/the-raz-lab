@@ -1523,21 +1523,24 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         var text = (textEl.value || "").trim();
         var email = (emailEl.value || "").trim();
         if (!text || !email) return;
-                sendEl.disabled = true;
+        sendEl.disabled = true;
         setStatus("Sending…");
         var who = (nameEl.value || "").trim() || "Visitor";
+        var body = new URLSearchParams();
+        body.set("name", who);
+        body.set("email", email);
+        body.set("_replyto", email);
+        body.set("_subject", "Want what we got? from " + who);
+        body.set("message", "Want what we got? from the MandMs3DPrints shop.\n\nName: " + who + "\nReply to: " + email + "\n\n" + text + "\n");
+        body.set("_template", "box");
+        body.set("_captcha", "false");
+        var ac = new AbortController();
+        var timer = setTimeout(function () { ac.abort(); }, 8000);
         fetch("https://formsubmit.co/ajax/mandms3dprints@gmail.com", {
           method: "POST",
-          headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify({
-            name: who,
-            email: email,
-            _replyto: email,
-            _subject: "Want what we got? from " + who,
-            message: "Want what we got? from the MandMs3DPrints shop.\n\nName: " + who + "\nReply to: " + email + "\n\n" + text + "\n",
-            _template: "box",
-            _captcha: "false"
-          })
+          headers: { "Accept": "application/json" },
+          body: body,
+          signal: ac.signal
         }).then(function (r) {
           return r.json().then(function (data) {
             return { httpOk: r.ok, data: data || {} };
@@ -1563,6 +1566,8 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         }).catch(function () {
           sendEl.disabled = false;
           setStatus("Could not send. Instagram is @mandms3dprints if this box dies.", "err");
+        }).then(function () {
+          clearTimeout(timer);
         });
       });
     })();
