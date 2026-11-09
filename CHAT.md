@@ -9,8 +9,8 @@ One action: send a note from **Want what we got?** The shop emails `mandms3dprin
 - Do **not** put Discord on the shop page. Do **not** route this through the station Gmail tools.
 
 ## How it works without the station
-1. Visitor sends from the form → `POST /api/chat` emails FormSubmit → `mandms3dprints@gmail.com`.
-2. Reply-To on that mail is the visitor's address. Reply in Gmail. The conversation stays in email.
+1. Visitor sends from the form → the browser POSTs FormSubmit (`https://formsubmit.co/ajax/mandms3dprints@gmail.com`) → `mandms3dprints@gmail.com`. Do **not** send through `POST /api/chat`. That Worker hung on FormSubmit and 502'd therazlab.com.
+2. Reply-To on that mail is the visitor's address. Reply in Gmail. The conversation stays in email. The visitor does not get a separate receipt.
 3. Two-way inbox-to-shop chat is not possible on this FormSubmit path. Do not keep the window open as if a reply will land there.
 
 `GET /chats.json` is 404 on purpose. Tokens never go to Discord.

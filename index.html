@@ -1523,34 +1523,48 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         var text = (textEl.value || "").trim();
         var email = (emailEl.value || "").trim();
         if (!text || !email) return;
-        sendEl.disabled = true;
+                sendEl.disabled = true;
         setStatus("Sending…");
-        fetch("/api/chat", {
+        var who = (nameEl.value || "").trim() || "Visitor";
+        fetch("https://formsubmit.co/ajax/mandms3dprints@gmail.com", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
           body: JSON.stringify({
-            name: nameEl.value,
+            name: who,
             email: email,
-            text: text
+            _replyto: email,
+            _subject: "Want what we got? from " + who,
+            message: "Want what we got? from the MandMs3DPrints shop.\n\nName: " + who + "\nReply to: " + email + "\n\n" + text + "\n",
+            _template: "box",
+            _captcha: "false"
           })
         }).then(function (r) {
-          return r.json().then(function (data) { return { ok: r.ok, data: data }; });
+          return r.json().then(function (data) {
+            return { httpOk: r.ok, data: data || {} };
+          });
         }).then(function (res) {
           sendEl.disabled = false;
-          if (!res.ok) {
-            setStatus((res.data && res.data.error) || "Could not send. Instagram is @mandms3dprints if this box dies.", "err");
+          var data = res.data || {};
+          var success = String(data.success || "").toLowerCase();
+          var message = String(data.message || data.error || "");
+          if (/confirm|activation/i.test(message)) {
+            setStatus("First send: open mandms3dprints@gmail.com, tap Activate Form, then send this again.", "err");
             return;
           }
-          try { if (nameEl.value) localStorage.setItem(NAME_KEY, nameEl.value); } catch (err) {}
-          try { localStorage.setItem(EMAIL_KEY, email); } catch (err) {}
-          textEl.value = "";
-          setStatus("Sent. We will write back in that inbox.", "ok");
-          setTimeout(closeForm, 900);
+          if (success === "true" || success === "1") {
+            try { if (nameEl.value) localStorage.setItem(NAME_KEY, nameEl.value); } catch (err) {}
+            try { localStorage.setItem(EMAIL_KEY, email); } catch (err) {}
+            textEl.value = "";
+            setStatus("Sent. We will write back in that inbox.", "ok");
+            setTimeout(closeForm, 900);
+            return;
+          }
+          setStatus(message || "Could not send. Instagram is @mandms3dprints if this box dies.", "err");
         }).catch(function () {
           sendEl.disabled = false;
           setStatus("Could not send. Instagram is @mandms3dprints if this box dies.", "err");
         });
-      });
+      });      });
     })();
 
     (function () {
