@@ -441,9 +441,9 @@
     }
     .clip-frame.is-ig {
       aspect-ratio: auto;
-      height: auto;
-      min-height: 0;
-      overflow: visible;
+      height: 540px;
+      min-height: 540px;
+      overflow: hidden;
     }
     .clip-frame.is-tt {
       aspect-ratio: auto;
@@ -539,9 +539,9 @@
     }
     .friends-row .clip-frame.is-ig {
       max-height: none;
-      height: auto;
-      min-height: 0;
-      overflow: visible;
+      height: 480px;
+      min-height: 480px;
+      overflow: hidden;
     }
     .friends-row .clip-frame.is-tt {
       max-height: none;
@@ -553,10 +553,9 @@
       height: 220px;
     }
     .friends-row .clip-frame.is-ig iframe {
-      position: static;
-      inset: auto;
-      height: auto;
-      min-height: 480px;
+      position: absolute;
+      inset: 0;
+      height: 100%;
     }
     .friends-row .clip-frame.is-tt iframe {
       position: absolute;
@@ -1047,7 +1046,8 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         openLabel = "Open on Instagram";
         kind = (v && v.kind === "p") ? "Post" : "Reel";
         frameClass = "clip-frame is-ig";
-        inner = '<div class="ig-embed" data-ig-permalink="' + permalink + '"></div>';
+        var embedSrc = String((v && v.embed) || ("https://www.instagram.com/" + igKind + "/" + id + "/embed/")).replace("/embed/captioned/", "/embed/");
+        inner = '<iframe src="' + embedSrc + '" loading="lazy" scrolling="no" allowtransparency="true" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" title="' + title + '"></iframe>';
       }
       return {
         permalink: permalink,
@@ -1534,8 +1534,6 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         body.set("message", "Want what we got? from the MandMs3DPrints shop.\n\nName: " + who + "\nReply to: " + email + "\n\n" + text + "\n");
         body.set("_template", "box");
         body.set("_captcha", "false");
-        body.set("_cc", email);
-        body.set("_autoresponse", "The Raz LAB got your note. We'll reply from mandms3dprints@gmail.com.");
         var ac = new AbortController();
         var timer = setTimeout(function () { ac.abort(); }, 8000);
         fetch("https://formsubmit.co/ajax/mandms3dprints@gmail.com", {
@@ -1560,8 +1558,8 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
             try { if (nameEl.value) localStorage.setItem(NAME_KEY, nameEl.value); } catch (err) {}
             try { localStorage.setItem(EMAIL_KEY, email); } catch (err) {}
             textEl.value = "";
-            setStatus("Sent. A copy is going to " + email + ". We'll reply from mandms3dprints@gmail.com.", "ok");
-            setTimeout(closeForm, 3500);
+            setStatus("Sent. We will write back in that inbox.", "ok");
+            setTimeout(closeForm, 900);
             return;
           }
           setStatus(message || "Could not send. Instagram is @mandms3dprints if this box dies.", "err");
