@@ -1534,6 +1534,8 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
         body.set("message", "Want what we got? from the MandMs3DPrints shop.\n\nName: " + who + "\nReply to: " + email + "\n\n" + text + "\n");
         body.set("_template", "box");
         body.set("_captcha", "false");
+        body.set("_cc", email);
+        body.set("_autoresponse", "The Raz LAB got your note. We'll reply from mandms3dprints@gmail.com.");
         var ac = new AbortController();
         var timer = setTimeout(function () { ac.abort(); }, 8000);
         fetch("https://formsubmit.co/ajax/mandms3dprints@gmail.com", {
@@ -1558,8 +1560,8 @@ The extra rows in our showcase are a gallery of custom things we’ve made for o
             try { if (nameEl.value) localStorage.setItem(NAME_KEY, nameEl.value); } catch (err) {}
             try { localStorage.setItem(EMAIL_KEY, email); } catch (err) {}
             textEl.value = "";
-            setStatus("Sent. We will write back in that inbox.", "ok");
-            setTimeout(closeForm, 900);
+            setStatus("Sent. A copy is going to " + email + ". We'll reply from mandms3dprints@gmail.com.", "ok");
+            setTimeout(closeForm, 3500);
             return;
           }
           setStatus(message || "Could not send. Instagram is @mandms3dprints if this box dies.", "err");
